@@ -19,6 +19,7 @@ module.exports = {
     },
     hot: true,
     liveReload: false,
+    // no matter what requested endpoint is, the server sends index.html only
     historyApiFallback: { index: 'index.html' }
   },
 
