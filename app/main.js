@@ -27,7 +27,7 @@ function Main() {
   // function runs everytime userCredentials state is updated
   useEffect(() => {
     // if no userCredentials then persist a falsy value
-    if (!userCredentials) localStorage.setItem('persistedUserData', '');
+    if (!userCredentials) return localStorage.setItem('persistedUserData', '');
 
     const stringifiedUserData = JSON.stringify(userCredentials);
 
