@@ -1,9 +1,9 @@
 import React from 'react';
-import Container from './container';
+import Page from './page';
 
 function HomeGuest() {
   return (
-    <Container>
+    <Page title="Home | SocialApp" narrow={false}>
       <div className="row align-items-center">
         <div className="col-lg-7 py-3 py-md-5">
           <h1 className="display-3">Remember Writing???</h1>
@@ -30,12 +30,12 @@ function HomeGuest() {
               <input id="password-register" name="password" className="form-control" type="password" placeholder="Create a password" />
             </div>
             <button type="submit" className="py-3 mt-4 btn btn-lg btn-success btn-block">
-              Sign up htmlFor ComplexApp
+              Sign up for SocialApp
             </button>
           </form>
         </div>
       </div>
-    </Container>
+    </Page>
   );
 }
 
