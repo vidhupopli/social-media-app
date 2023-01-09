@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import axios from 'axios';
 
-function HeaderLoggedOut() {
+function HeaderLoggedOut(props) {
   // states for input fields
   const [username, setUsername] = useState('');
   const [password, setPassword] = useState('');
@@ -11,10 +11,14 @@ function HeaderLoggedOut() {
     try {
       const serverResponse = await axios.post('http://localhost:8080/login', { username, password });
 
-      // guard clause to not do anything if the login wasn't successful
+      // if login unsuccessful alert and don't proceed further
       if (!serverResponse.data) return alert('X -> failed login');
 
-      console.log(serverResponse);
+      // store obtained user data in state
+      props.setUserData(serverResponse.data);
+
+      // PIN: delete later
+      console.log(serverResponse.data);
     } catch (err) {
       console.log(err.response.data);
     }
