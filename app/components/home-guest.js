@@ -15,7 +15,7 @@ function HomeGuest() {
     setPassword('');
   };
 
-  const userSignupHandler = async e => {
+  const userSignupHandler = async function (e) {
     e.preventDefault();
     try {
       const userCredentialsForRegisteraion = { username, email, password };
