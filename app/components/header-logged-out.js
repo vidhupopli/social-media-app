@@ -15,12 +15,9 @@ function HeaderLoggedOut(props) {
       if (!serverResponse.data) return alert('X -> failed login');
 
       // store obtained user data in state
-      props.setUserData(serverResponse.data);
-
-      // PIN: delete later
-      console.log(serverResponse.data);
+      props.setUserCredentials(serverResponse.data);
     } catch (err) {
-      console.log(err.response.data);
+      console.log(err);
     }
   };
 

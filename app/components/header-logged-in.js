@@ -2,7 +2,7 @@ import React from 'react';
 
 function HeaderLoggedIn(props) {
   const userLogoutHandler = e => {
-    props.setUserData(null);
+    props.setUserCredentials(null);
   };
 
   return (
@@ -15,7 +15,7 @@ function HeaderLoggedIn(props) {
         <span className="chat-count-badge text-white"> </span>
       </span>
       <a href="#" className="mr-2">
-        <img className="small-header-avatar" src={props.userData.avatar} />
+        <img className="small-header-avatar" src={props.userCredentials.avatar} />
       </a>
       <a className="btn btn-sm btn-success mr-2" href="/create-post">
         Create Post
