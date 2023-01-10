@@ -1,5 +1,6 @@
-import React, { useReducer, useEffect } from 'react';
+import React, { useEffect } from 'react';
 import ReactDOM from 'react-dom/client';
+import { useImmerReducer } from 'use-immer';
 import { BrowserRouter, Routes, Route } from 'react-router-dom';
 
 // setting up baseUrl to be used with axios
@@ -28,22 +29,21 @@ function Main() {
     flashMessages: []
   };
 
-  const customUpdateStateFn = function (currStateVal, phActionObj) {
+  const customUpdateStateFn = function (currMutableStateVal, phActionObj) {
     switch (phActionObj.type) {
       case 'saveUserCredentials':
-        // cannot mutate therefore entire obj has to rebuilt
-        return { userCredentials: phActionObj.data, flashMessages: currStateVal.flashMessages };
+        currMutableStateVal.userCredentials = phActionObj.data;
+        // can also return undefined by just writing return;
+        break;
       case 'addFlashMessage':
-        return {
-          userCredentials: currStateVal.userCredentials,
-          flashMessages: currStateVal.flashMessages.concat(phActionObj.newMessage)
-        };
+        currMutableStateVal.flashMessages.push(phActionObj.newMessage);
+        break;
       default:
         throw new Error('Invalid action type');
     }
   };
 
-  const [stateRef, wrapperUpdateStateFn] = useReducer(customUpdateStateFn, initalStateVal);
+  const [stateRef, wrapperUpdateStateFn] = useImmerReducer(customUpdateStateFn, initalStateVal);
 
   /////////////////////
   //loading and persisting state data
