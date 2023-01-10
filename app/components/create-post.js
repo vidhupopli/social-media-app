@@ -3,16 +3,16 @@ import React, { useState, useContext } from 'react';
 import axios from 'axios';
 import { useNavigate } from 'react-router-dom';
 
+// my contexts
+import StateContext from '../contexts/state-context';
+import StateUpdatorContext from '../contexts/state-updator-context';
+
 // my components
 import Page from './page';
 
-// my context
-// context reference is required in order to retrieve data from it
-import ExampleContext from '../contexts/example-context';
-
 function CreatePost() {
-  // retrieving data out of a context
-  const { userCredentials, addFlashMessageToState } = useContext(ExampleContext);
+  const retrievedStateRef = useContext(StateContext);
+  const retrievedWrapperUpdateStateFn = useContext(StateUpdatorContext);
 
   // states for the input and textarea elements
   const [title, setTitle] = useState('');
@@ -32,7 +32,7 @@ function CreatePost() {
       const dataToSend = {
         title,
         body,
-        token: userCredentials.token
+        token: retrievedStateRef.userCredentials.token
       };
 
       const serverResponse = await axios.post('/create-post', dataToSend);
@@ -40,8 +40,8 @@ function CreatePost() {
 
       emptyTitleAndBodyStates();
 
-      // using data of a context
-      addFlashMessageToState('New Post Created!');
+      // updating state using dispatch function
+      retrievedWrapperUpdateStateFn({ type: 'addFlashMessage', newMessage: 'Congrats! New Post Created!' });
 
       navigate(`/post/${postId}`);
     } catch (err) {

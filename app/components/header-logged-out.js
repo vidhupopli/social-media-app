@@ -2,10 +2,10 @@ import React, { useState, useContext } from 'react';
 import axios from 'axios';
 
 // my contexts
-import ExampleContext from '../contexts/example-context';
+import StateUpdatorContext from '../contexts/state-updator-context';
 
 function HeaderLoggedOut() {
-  const { setUserCredentials } = useContext(ExampleContext);
+  const retrievedWrapperUpdateStateFn = useContext(StateUpdatorContext);
 
   // states for input fields
   const [username, setUsername] = useState('');
@@ -20,7 +20,7 @@ function HeaderLoggedOut() {
       if (!serverResponse.data) return alert('X -> failed login');
 
       // store obtained user data in state
-      setUserCredentials(serverResponse.data);
+      retrievedWrapperUpdateStateFn({ type: 'saveUserCredentials', data: serverResponse.data });
     } catch (err) {
       console.log(err);
     }

@@ -1,15 +1,15 @@
 import React, { useContext } from 'react';
 import { Link } from 'react-router-dom';
 
+// my contexts
+import StateContext from '../contexts/state-context';
+
 // my components
 import HeaderLoggedOut from './header-logged-out';
 import HeaderLoggedIn from './header-logged-in';
 
-// my contexts
-import ExampleContext from '../contexts/example-context';
-
 function Header() {
-  const { userCredentials } = useContext(ExampleContext);
+  const retrievedStateRef = useContext(StateContext);
 
   return (
     <header className="header-bar bg-primary mb-3">
@@ -19,7 +19,7 @@ function Header() {
             SocialApp
           </Link>
         </h4>
-        {userCredentials ? <HeaderLoggedIn /> : <HeaderLoggedOut />}
+        {retrievedStateRef.userCredentials ? <HeaderLoggedIn /> : <HeaderLoggedOut />}
       </div>
     </header>
   );

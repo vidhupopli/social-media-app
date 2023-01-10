@@ -1,18 +1,19 @@
 import React, { useContext } from 'react';
 
+// my contexts
+import StateContext from '../contexts/state-context';
+
 // my components
 import Page from './page';
 import HomeGuest from './home-guest';
 import HomeEmptyFeed from './home-empty-feed';
 
-// my contexts
-import ExampleContext from '../contexts/example-context';
-
 function Home() {
-  const { userCredentials } = useContext(ExampleContext);
+  const retrievedStateRef = useContext(StateContext);
+
   return (
     <Page title="Home" narrow={false}>
-      {userCredentials ? <HomeEmptyFeed /> : <HomeGuest />}
+      {retrievedStateRef.userCredentials ? <HomeEmptyFeed /> : <HomeGuest />}
     </Page>
   );
 }
