@@ -10,7 +10,7 @@ function HeaderLoggedIn() {
   const retrievedWrapperUpdateStateFn = useContext(StateUpdatorContext);
 
   const userLogoutHandler = e => {
-    retrievedWrapperUpdateStateFn({ type: 'saveUserCredentials', data: null });
+    retrievedWrapperUpdateStateFn({ type: 'logout' });
   };
 
   return (

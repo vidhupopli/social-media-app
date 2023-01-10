@@ -20,7 +20,7 @@ function HeaderLoggedOut() {
       if (!serverResponse.data) return alert('X -> failed login');
 
       // store obtained user data in state
-      retrievedWrapperUpdateStateFn({ type: 'saveUserCredentials', data: serverResponse.data });
+      retrievedWrapperUpdateStateFn({ type: 'login', data: serverResponse.data });
     } catch (err) {
       console.log(err);
     }

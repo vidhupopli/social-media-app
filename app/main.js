@@ -31,7 +31,10 @@ function Main() {
 
   const customUpdateStateFn = function (currMutableStateVal, phActionObj) {
     switch (phActionObj.type) {
-      case 'saveUserCredentials':
+      case 'logout':
+        currMutableStateVal.userCredentials = null;
+        break;
+      case 'login':
         currMutableStateVal.userCredentials = phActionObj.data;
         // can also return undefined by just writing return;
         break;
@@ -54,19 +57,19 @@ function Main() {
 
     //if data exists, update react user data state
     if (obtainedStringifiedData) {
-      wrapperUpdateStateFn({ type: 'saveUserCredentials', data: JSON.parse(obtainedStringifiedData) });
+      wrapperUpdateStateFn({ type: 'login', data: JSON.parse(obtainedStringifiedData) });
     }
   }, []);
 
-  // function runs [hopefully] everytime userCredentials portion of the state is updated
+  // function runs everytime userCredentials portion of the state is updated
   useEffect(() => {
-    // if no userCredentials then persist a falsy value. Do nothing further.
-    if (!stateRef.userCredentials) return localStorage.setItem('persistedUserData', '');
+    // if userCredentials in state is null then remove persisted user data. Do nothing further.
+    if (!stateRef.userCredentials) return localStorage.removeItem('persistedUserData');
 
+    // otherwise:-
     const stringifiedUserData = JSON.stringify(stateRef.userCredentials);
-
     localStorage.setItem('persistedUserData', stringifiedUserData);
-  }, [stateRef.userCredentials]); //[hoping] that you can watch for a subset of the state rather than watching for the whole state
+  }, [stateRef.userCredentials]); //watch for a subset of the state rather than watching for the whole state
   /////////////////////
 
   return (
