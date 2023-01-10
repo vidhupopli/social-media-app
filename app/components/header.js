@@ -1,11 +1,16 @@
-import React from 'react';
+import React, { useContext } from 'react';
 import { Link } from 'react-router-dom';
 
 // my components
 import HeaderLoggedOut from './header-logged-out';
 import HeaderLoggedIn from './header-logged-in';
 
-function Header(props) {
+// my contexts
+import ExampleContext from '../contexts/example-context';
+
+function Header() {
+  const { userCredentials } = useContext(ExampleContext);
+
   return (
     <header className="header-bar bg-primary mb-3">
       <div className="container d-flex flex-column flex-md-row align-items-center p-3">
@@ -14,7 +19,7 @@ function Header(props) {
             SocialApp
           </Link>
         </h4>
-        {props.userCredentials ? <HeaderLoggedIn userCredentials={props.userCredentials} setUserCredentials={props.setUserCredentials} /> : <HeaderLoggedOut setUserCredentials={props.setUserCredentials} />}
+        {userCredentials ? <HeaderLoggedIn /> : <HeaderLoggedOut />}
       </div>
     </header>
   );

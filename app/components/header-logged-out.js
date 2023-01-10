@@ -1,7 +1,12 @@
-import React, { useState } from 'react';
+import React, { useState, useContext } from 'react';
 import axios from 'axios';
 
-function HeaderLoggedOut(props) {
+// my contexts
+import ExampleContext from '../contexts/example-context';
+
+function HeaderLoggedOut() {
+  const { setUserCredentials } = useContext(ExampleContext);
+
   // states for input fields
   const [username, setUsername] = useState('');
   const [password, setPassword] = useState('');
@@ -15,7 +20,7 @@ function HeaderLoggedOut(props) {
       if (!serverResponse.data) return alert('X -> failed login');
 
       // store obtained user data in state
-      props.setUserCredentials(serverResponse.data);
+      setUserCredentials(serverResponse.data);
     } catch (err) {
       console.log(err);
     }

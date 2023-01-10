@@ -1,9 +1,14 @@
-import React from 'react';
+import React, { useContext } from 'react';
 import { Link } from 'react-router-dom';
 
-function HeaderLoggedIn(props) {
+// my contexts
+import ExampleContext from '../contexts/example-context';
+
+function HeaderLoggedIn() {
+  const { userCredentials, setUserCredentials } = useContext(ExampleContext);
+
   const userLogoutHandler = e => {
-    props.setUserCredentials(null);
+    setUserCredentials(null);
   };
 
   return (
@@ -16,7 +21,7 @@ function HeaderLoggedIn(props) {
         <span className="chat-count-badge text-white"> </span>
       </span>
       <a href="#" className="mr-2">
-        <img className="small-header-avatar" src={props.userCredentials.avatar} />
+        <img className="small-header-avatar" src={userCredentials.avatar} />
       </a>
       <Link className="btn btn-sm btn-success mr-2" to="/create-post">
         Create Post

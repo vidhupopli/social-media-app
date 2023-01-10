@@ -16,6 +16,10 @@ import CreatePost from './components/create-post';
 import SinglePost from './components/single-post';
 import FlashMessages from './components/flash-messages';
 
+// my contexts
+// Must have context ref if you wanna put data inside of it
+import ExampleContext from './contexts/example-context';
+
 const root = ReactDOM.createRoot(document.getElementById('root'));
 
 function Main() {
@@ -50,18 +54,22 @@ function Main() {
   /////////////////////
 
   return (
-    <BrowserRouter>
-      <FlashMessages flashMessagesState={flashMessagesState} />
-      <Header userCredentials={userCredentials} setUserCredentials={setUserCredentials} />
-      <Routes>
-        <Route path="/" element={<Home userCredentials={userCredentials} />} />
-        <Route path="/about-us" element={<About />} />
-        <Route path="/terms" element={<Terms />} />
-        <Route path="/create-post" element={<CreatePost userCredentials={userCredentials} addFlashMessageToState={addFlashMessageToState} />} />
-        <Route path="/post/:id" element={<SinglePost />} />
-      </Routes>
-      <Footer />
-    </BrowserRouter>
+    // putting data inside a context
+    // data of context (an obj) is accessible to all downcesters however not like props.value
+    <ExampleContext.Provider value={{ userCredentials, setUserCredentials, flashMessagesState, addFlashMessageToState }}>
+      <BrowserRouter>
+        <FlashMessages />
+        <Header />
+        <Routes>
+          <Route path="/" element={<Home />} />
+          <Route path="/about-us" element={<About />} />
+          <Route path="/terms" element={<Terms />} />
+          <Route path="/create-post" element={<CreatePost />} />
+          <Route path="/post/:id" element={<SinglePost />} />
+        </Routes>
+        <Footer />
+      </BrowserRouter>
+    </ExampleContext.Provider>
   );
 }
 

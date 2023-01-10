@@ -1,11 +1,19 @@
-import React, { useState } from 'react';
+// We wanna use the useContext hook in order to retrieve data from a context
+import React, { useState, useContext } from 'react';
 import axios from 'axios';
 import { useNavigate } from 'react-router-dom';
 
 // my components
 import Page from './page';
 
-function CreatePost(props) {
+// my context
+// context reference is required in order to retrieve data from it
+import ExampleContext from '../contexts/example-context';
+
+function CreatePost() {
+  // retrieving data out of a context
+  const { userCredentials, addFlashMessageToState } = useContext(ExampleContext);
+
   // states for the input and textarea elements
   const [title, setTitle] = useState('');
   const [body, setBody] = useState('');
@@ -24,14 +32,16 @@ function CreatePost(props) {
       const dataToSend = {
         title,
         body,
-        token: props.userCredentials.token
+        token: userCredentials.token
       };
 
       const serverResponse = await axios.post('/create-post', dataToSend);
       const postId = serverResponse.data;
 
       emptyTitleAndBodyStates();
-      props.addFlashMessageToState('New Post Created!');
+
+      // using data of a context
+      addFlashMessageToState('New Post Created!');
 
       navigate(`/post/${postId}`);
     } catch (err) {
