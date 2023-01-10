@@ -14,12 +14,13 @@ import About from './components/about';
 import Terms from './components/terms';
 import CreatePost from './components/create-post';
 import SinglePost from './components/single-post';
+import FlashMessages from './components/flash-messages';
 
 const root = ReactDOM.createRoot(document.getElementById('root'));
 
 function Main() {
+  /////////////////////
   const [userCredentials, setUserCredentials] = useState(null);
-
   // function executes first time Main component is rendered
   useEffect(() => {
     const obtainedStringifiedData = localStorage.getItem('persistedUserData');
@@ -29,7 +30,6 @@ function Main() {
       setUserCredentials(JSON.parse(obtainedStringifiedData));
     }
   }, []);
-
   // function runs everytime userCredentials state is updated
   useEffect(() => {
     // if no userCredentials then persist a falsy value
@@ -39,15 +39,25 @@ function Main() {
 
     localStorage.setItem('persistedUserData', stringifiedUserData);
   }, [userCredentials]);
+  /////////////////////
+
+  /////////////////////
+  const [flashMessagesState, setFlashMessagesState] = useState([]);
+  // utility function to update flashMessagesState
+  const addFlashMessageToState = phMessage => {
+    setFlashMessagesState(flashMessagesState.concat(phMessage));
+  };
+  /////////////////////
 
   return (
     <BrowserRouter>
+      <FlashMessages flashMessagesState={flashMessagesState} />
       <Header userCredentials={userCredentials} setUserCredentials={setUserCredentials} />
       <Routes>
         <Route path="/" element={<Home userCredentials={userCredentials} />} />
         <Route path="/about-us" element={<About />} />
         <Route path="/terms" element={<Terms />} />
-        <Route path="/create-post" element={<CreatePost userCredentials={userCredentials} />} />
+        <Route path="/create-post" element={<CreatePost userCredentials={userCredentials} addFlashMessageToState={addFlashMessageToState} />} />
         <Route path="/post/:id" element={<SinglePost />} />
       </Routes>
       <Footer />

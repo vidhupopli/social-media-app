@@ -31,6 +31,7 @@ function CreatePost(props) {
       const postId = serverResponse.data;
 
       emptyTitleAndBodyStates();
+      props.addFlashMessageToState('New Post Created!');
 
       navigate(`/post/${postId}`);
     } catch (err) {
