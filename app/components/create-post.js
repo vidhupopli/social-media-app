@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import axios from 'axios';
+import { useNavigate } from 'react-router-dom';
 
 // my components
 import Page from './page';
@@ -8,6 +9,8 @@ function CreatePost(props) {
   // states for the input and textarea elements
   const [title, setTitle] = useState('');
   const [body, setBody] = useState('');
+
+  const navigate = useNavigate();
 
   // utility function to clear title and body state
   const emptyTitleAndBodyStates = () => {
@@ -24,11 +27,12 @@ function CreatePost(props) {
         token: props.userCredentials.token
       };
 
-      await axios.post('/create-post', dataToSend);
-
-      console.log('New post created!');
+      const serverResponse = await axios.post('/create-post', dataToSend);
+      const postId = serverResponse.data;
 
       emptyTitleAndBodyStates();
+
+      navigate(`/post/${postId}`);
     } catch (err) {
       console.log(err);
     }

@@ -13,6 +13,7 @@ import Home from './components/home';
 import About from './components/about';
 import Terms from './components/terms';
 import CreatePost from './components/create-post';
+import SinglePost from './components/single-post';
 
 const root = ReactDOM.createRoot(document.getElementById('root'));
 
@@ -47,6 +48,7 @@ function Main() {
         <Route path="/about-us" element={<About />} />
         <Route path="/terms" element={<Terms />} />
         <Route path="/create-post" element={<CreatePost userCredentials={userCredentials} />} />
+        <Route path="/post/:id" element={<SinglePost />} />
       </Routes>
       <Footer />
     </BrowserRouter>
