@@ -1,5 +1,5 @@
 import React, { useContext } from 'react';
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 
 // my contexts
 import StateContext from '../contexts/state-context';
@@ -9,8 +9,11 @@ function HeaderLoggedIn() {
   const retrievedStateRef = useContext(StateContext);
   const retrievedWrapperUpdateStateFn = useContext(StateUpdatorContext);
 
+  const giveFlowToRouter = useNavigate();
+
   const userLogoutHandler = e => {
     retrievedWrapperUpdateStateFn({ type: 'logout' });
+    giveFlowToRouter('/');
   };
 
   return (
@@ -22,9 +25,10 @@ function HeaderLoggedIn() {
         <i className="fas fa-comment"></i>
         <span className="chat-count-badge text-white"> </span>
       </span>
-      <a href="#" className="mr-2">
+      {/* Click on this below to give flow to router */}
+      <Link to="/temp" className="mr-2">
         <img className="small-header-avatar" src={retrievedStateRef.userCredentials.avatar} />
-      </a>
+      </Link>
       <Link className="btn btn-sm btn-success mr-2" to="/create-post">
         Create Post
       </Link>

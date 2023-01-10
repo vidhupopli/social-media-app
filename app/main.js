@@ -20,6 +20,7 @@ import Terms from './components/terms';
 import CreatePost from './components/create-post';
 import SinglePost from './components/single-post';
 import FlashMessages from './components/flash-messages';
+import ProfilePosts from './components/profile-posts';
 
 const root = ReactDOM.createRoot(document.getElementById('root'));
 
@@ -85,6 +86,7 @@ function Main() {
             <Route path="/terms" element={<Terms />} />
             <Route path="/create-post" element={<CreatePost />} />
             <Route path="/post/:id" element={<SinglePost />} />
+            <Route path="/temp" element={<ProfilePosts />} />
           </Routes>
           <Footer />
         </BrowserRouter>
