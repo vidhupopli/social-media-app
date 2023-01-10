@@ -7,7 +7,7 @@ import HomeEmptyFeed from './home-empty-feed';
 
 function Home(props) {
   return (
-    <Page title="Home | SocialApp" narrow={false}>
+    <Page title="Home" narrow={false}>
       {props.userCredentials ? <HomeEmptyFeed userCredentials={props.userCredentials} /> : <HomeGuest />}
     </Page>
   );

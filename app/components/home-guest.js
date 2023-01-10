@@ -19,7 +19,7 @@ function HomeGuest() {
     try {
       const userCredentialsForRegisteraion = { username, email, password };
 
-      await axios.post('http://localhost:8080/register', userCredentialsForRegisteraion);
+      await axios.post('/register', userCredentialsForRegisteraion);
 
       resetInputStates();
 

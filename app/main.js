@@ -2,12 +2,17 @@ import React, { useState, useEffect } from 'react';
 import ReactDOM from 'react-dom/client';
 import { BrowserRouter, Routes, Route } from 'react-router-dom';
 
+// setting up baseUrl to be used with axios
+import axios from 'axios';
+axios.defaults.baseURL = 'http://localhost:8080/';
+
 // my components
 import Header from './components/header';
 import Footer from './components/footer';
 import Home from './components/home';
 import About from './components/about';
 import Terms from './components/terms';
+import CreatePost from './components/create-post';
 
 const root = ReactDOM.createRoot(document.getElementById('root'));
 
@@ -41,6 +46,7 @@ function Main() {
         <Route path="/" element={<Home userCredentials={userCredentials} />} />
         <Route path="/about-us" element={<About />} />
         <Route path="/terms" element={<Terms />} />
+        <Route path="/create-post" element={<CreatePost userCredentials={userCredentials} />} />
       </Routes>
       <Footer />
     </BrowserRouter>

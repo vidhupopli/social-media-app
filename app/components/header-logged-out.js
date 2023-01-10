@@ -9,7 +9,7 @@ function HeaderLoggedOut(props) {
   const userLoginHandler = async function (e) {
     e.preventDefault();
     try {
-      const serverResponse = await axios.post('http://localhost:8080/login', { username, password });
+      const serverResponse = await axios.post('/login', { username, password });
 
       // if login unsuccessful alert and don't proceed further
       if (!serverResponse.data) return alert('X -> failed login');
