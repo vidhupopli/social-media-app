@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { useParams, Link } from 'react-router-dom';
 import axios from 'axios';
+import ReactMarkdown from 'react-markdown';
 
 // my components
 import Page from './page';
@@ -12,12 +13,10 @@ function SinglePost() {
   const [singlePostData, setSinglePostData] = useState(null);
 
   useEffect(() => {
-    // (1. CREATION OF A TOKEN)
     const axiosRequestRef = axios.CancelToken.source();
 
     (async function () {
       try {
-        // (2. ASSIGNING OF TOKEN)
         const serverResponse = await axios.get(`/post/${id}`, { cancelToken: axiosRequestRef.token });
 
         setSinglePostData(serverResponse.data);
@@ -26,7 +25,6 @@ function SinglePost() {
       }
     })();
 
-    // (3. USAGE OF TOKEN)
     return () => axiosRequestRef.cancel();
   }, []);
 
@@ -61,7 +59,8 @@ function SinglePost() {
       </p>
 
       <div className="body-content">
-        <p>{singlePostData.body}</p>
+        {/* <p>{singlePostData.body}</p> */}
+        <ReactMarkdown children={singlePostData.body} allowedElements={['h1', 'h2', 'h3', 'h4', 'h5', 'h6', 'p', 'ul', 'ol', 'li', 'strong', 'em']} />
       </div>
     </Page>
   );

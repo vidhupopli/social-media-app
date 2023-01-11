@@ -15,7 +15,7 @@ function Profile() {
 
   const [profileData, setProfileData] = useState({
     profileUsername: '...',
-    profileAvatar: 'https://gravatar.com/avatar/b9408a09298632b5151200f3449434ef?s=128',
+    profileAvatar: '	https://gravatar.com/avatar/460c63a5312e0d71ab158836abb9d281?s=128',
     isFollowing: false,
     counts: {
       postCount: '...',

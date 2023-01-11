@@ -22,8 +22,6 @@ import SinglePost from './components/single-post';
 import FlashMessages from './components/flash-messages';
 import Profile from './components/profile';
 
-const root = ReactDOM.createRoot(document.getElementById('root'));
-
 function Main() {
   const initalStateVal = {
     userCredentials: null,
@@ -70,11 +68,10 @@ function Main() {
     // otherwise:-
     const stringifiedUserData = JSON.stringify(stateRef.userCredentials);
     localStorage.setItem('persistedUserData', stringifiedUserData);
-  }, [stateRef.userCredentials]); //watch for a subset of the state rather than watching for the whole state
+  }, [stateRef.userCredentials]);
   /////////////////////
 
   return (
-    // nested contexts because if there was only one, then those components which only need wrapperUpdateStateFn, will be re-renderd everytime stateRef is updated.
     <StateContext.Provider value={stateRef}>
       <StateUpdatorContext.Provider value={wrapperUpdateStateFn}>
         <BrowserRouter>
@@ -86,7 +83,6 @@ function Main() {
             <Route path="/terms" element={<Terms />} />
             <Route path="/create-post" element={<CreatePost />} />
             <Route path="/post/:id" element={<SinglePost />} />
-            {/* * symbol has been added so that this route is actived when we do something like /profile/vidhu/xyz */}
             <Route path="/profile/:username*" element={<Profile />} />
           </Routes>
           <Footer />
@@ -95,6 +91,8 @@ function Main() {
     </StateContext.Provider>
   );
 }
+
+const root = ReactDOM.createRoot(document.getElementById('root'));
 
 root.render(<Main />);
 
