@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { useParams } from 'react-router-dom';
+import { useParams, Link } from 'react-router-dom';
 import axios from 'axios';
 
 // my components
@@ -22,9 +22,16 @@ function SinglePost() {
     })();
   }, []);
 
-  if (!singlePostData) return <p>Loading...</p>;
+  // if the data isn't available yet:
+  if (!singlePostData)
+    return (
+      <Page title="Loading...">
+        <p>Loading...</p>
+      </Page>
+    );
 
   return (
+    // not-understood problem discovered: the title doesn't change by default, we have to watch for singlePostData.title in the composition's useEffect function
     <Page title={singlePostData.title} narrow={true}>
       <div className="d-flex justify-content-between">
         <h2>{singlePostData.title}</h2>
@@ -39,10 +46,10 @@ function SinglePost() {
       </div>
 
       <p className="text-muted small mb-4">
-        <a href="#">
+        <Link to={`/profile/${singlePostData.author.username}`}>
           <img className="avatar-tiny" src={singlePostData.author.avatar} />
-        </a>
-        Posted by <a href="#">{singlePostData.author.username}</a> on {new Date(singlePostData.createdDate).toDateString()}
+        </Link>
+        Posted by <Link to={`/profile/${singlePostData.author.username}`}>{singlePostData.author.username}</Link> on {new Date(singlePostData.createdDate).toDateString()}
       </p>
 
       <div className="body-content">
