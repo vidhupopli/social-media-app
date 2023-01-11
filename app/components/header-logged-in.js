@@ -26,7 +26,7 @@ function HeaderLoggedIn() {
         <span className="chat-count-badge text-white"> </span>
       </span>
       {/* Click on this below to give flow to router */}
-      <Link to="/temp" className="mr-2">
+      <Link to={`/profile/${retrievedStateRef.userCredentials.username}`} className="mr-2">
         <img className="small-header-avatar" src={retrievedStateRef.userCredentials.avatar} />
       </Link>
       <Link className="btn btn-sm btn-success mr-2" to="/create-post">
