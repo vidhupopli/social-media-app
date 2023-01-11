@@ -12,9 +12,11 @@ function ProfilePosts() {
   const [posts, setPosts] = useState([]); //posts data
 
   useEffect(() => {
+    const axiosRequestRef = axios.CancelToken.source();
+
     (async function () {
       try {
-        const serverResponse = await axios.get(`/profile/${username}/posts`);
+        const serverResponse = await axios.get(`/profile/${username}/posts`, { cancelToken: axiosRequestRef.token });
 
         setPosts(serverResponse.data); //array of objects
 
@@ -23,6 +25,8 @@ function ProfilePosts() {
         console.log(err);
       }
     })();
+
+    return () => axiosRequestRef.cancel();
   }, []);
 
   if (isLoading) {

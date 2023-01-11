@@ -28,16 +28,19 @@ function Profile() {
 
   // running arrowFn when this compo is mounted
   useEffect(() => {
-    // cannot make the arrowFn async, so we have to use an IIFE
+    const axiosRequestRef = axios.CancelToken.source();
+
     (async function () {
       try {
-        const serverResponse = await axios.post(`/profile/${username}`, { token: stateRef?.userCredentials?.token }); //an error occurrs here if we refresh the route, according to it userCredentials is null. Which could mean that the useEffect function in the main hasn't finished loading browser data into the state. Error is solved by optional chaining.
+        const serverResponse = await axios.post(`/profile/${username}`, { token: stateRef?.userCredentials?.token }, { cancelToken: axiosRequestRef.token });
 
         setProfileData(serverResponse.data);
       } catch (err) {
         console.log(err);
       }
     })();
+
+    return () => axiosRequestRef.cancel();
   }, []);
 
   return (

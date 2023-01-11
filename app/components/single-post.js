@@ -12,15 +12,22 @@ function SinglePost() {
   const [singlePostData, setSinglePostData] = useState(null);
 
   useEffect(() => {
+    // (1. CREATION OF A TOKEN)
+    const axiosRequestRef = axios.CancelToken.source();
+
     (async function () {
       try {
-        const serverResponse = await axios.get(`/post/${id}`);
+        // (2. ASSIGNING OF TOKEN)
+        const serverResponse = await axios.get(`/post/${id}`, { cancelToken: axiosRequestRef.token });
 
         setSinglePostData(serverResponse.data);
       } catch (err) {
         console.log(err);
       }
     })();
+
+    // (3. USAGE OF TOKEN)
+    return () => axiosRequestRef.cancel();
   }, []);
 
   // if the data isn't available yet:
