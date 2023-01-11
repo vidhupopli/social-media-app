@@ -34,6 +34,11 @@ module.exports = {
             presets: ['@babel/preset-react', ['@babel/preset-env', { targets: { node: '12' } }]]
           }
         }
+      },
+      // Ensures that we can import css file assets in our js files
+      {
+        test: /\.css$/i,
+        use: ['style-loader', 'css-loader']
       }
     ]
   }

@@ -2,6 +2,8 @@ import React, { useState, useEffect } from 'react';
 import { useParams, Link } from 'react-router-dom';
 import axios from 'axios';
 import ReactMarkdown from 'react-markdown';
+import { Tooltip } from 'react-tooltip';
+import './../../node_modules/react-tooltip/dist/react-tooltip.css';
 
 // my components
 import Page from './page';
@@ -9,9 +11,9 @@ import LoadingDots from './loading-dots';
 
 function SinglePost() {
   const { id } = useParams();
-
   const [singlePostData, setSinglePostData] = useState(null);
 
+  // retrieve data
   useEffect(() => {
     const axiosRequestRef = axios.CancelToken.source();
 
@@ -36,18 +38,20 @@ function SinglePost() {
       </Page>
     );
 
+  // if data becomes available:
   return (
-    // not-understood problem discovered: the title doesn't change by default, we have to watch for singlePostData.title in the composition's useEffect function
     <Page title={singlePostData.title} narrow={true}>
       <div className="d-flex justify-content-between">
         <h2>{singlePostData.title}</h2>
         <span className="pt-2">
-          <a href="#" className="text-primary mr-2" title="Edit">
+          <a id="edit-button" data-tooltip-content="Edit" href="#" className="text-primary mr-2">
             <i className="fas fa-edit"></i>
           </a>
-          <a className="delete-post-button text-danger" title="Delete">
+          <Tooltip anchorId="edit-button" />
+          <a id="delete-button" data-tooltip-content="Delete" className="delete-post-button text-danger" title="Delete">
             <i className="fas fa-trash"></i>
           </a>
+          <Tooltip anchorId="delete-button" />
         </span>
       </div>
 
