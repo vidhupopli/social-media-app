@@ -4,6 +4,7 @@ import axios from 'axios';
 
 // my components
 import Page from './page';
+import LoadingDots from './loading-dots';
 
 function SinglePost() {
   const { id } = useParams();
@@ -26,7 +27,7 @@ function SinglePost() {
   if (!singlePostData)
     return (
       <Page title="Loading...">
-        <p>Loading...</p>
+        <LoadingDots />
       </Page>
     );
 

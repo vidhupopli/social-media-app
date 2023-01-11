@@ -2,6 +2,9 @@ import React, { useState, useEffect } from 'react';
 import { useParams, Link } from 'react-router-dom';
 import axios from 'axios';
 
+// my components
+import LoadingDots from './loading-dots';
+
 function ProfilePosts() {
   const { username } = useParams();
 
@@ -23,7 +26,7 @@ function ProfilePosts() {
   }, []);
 
   if (isLoading) {
-    return <p>Loading...</p>;
+    return <LoadingDots />;
   }
 
   return (
