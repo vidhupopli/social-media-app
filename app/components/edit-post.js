@@ -8,12 +8,17 @@ import StateContext from '../contexts/state-context';
 
 // my components
 import Page from './page';
+import LoadingDots from './loading-dots';
 
 function EditPost() {
   const { id } = useParams();
 
+  // input field states
   const [title, setTitle] = useState('');
   const [body, setBody] = useState('');
+
+  // state to keep track of whether or not the data has been fetched
+  const [dataReceived, setDataReceived] = useState(false);
 
   const stateUpdatorFn = useContext(StateUpdatorContext);
   const state = useContext(StateContext);
@@ -28,6 +33,7 @@ function EditPost() {
         const serverResponse = await axios.get(`/post/${id}`);
 
         // update state for the input fields
+        setDataReceived(true);
         setTitle(serverResponse.data.title);
         setBody(serverResponse.data.body);
       } catch (err) {
@@ -54,7 +60,16 @@ function EditPost() {
     }
   };
 
-  // remember the returning happens immediately and the useEffect works in the bg meanwhile
+  // jsx to return if the data has NOT been recd
+  if (!dataReceived) {
+    return (
+      <Page title="Loading..." narrow={true}>
+        <LoadingDots />
+      </Page>
+    );
+  }
+
+  // jsx to return if the data has been recd
   return (
     <Page title="Edit" narrow={true}>
       <form onSubmit={editPostHandler}>
@@ -73,7 +88,7 @@ function EditPost() {
           <textarea value={body} onChange={e => setBody(e.target.value)} name="body" id="post-body" className="body-content tall-textarea form-control" type="text"></textarea>
         </div>
 
-        <button className="btn btn-primary">Save New Post</button>
+        <button className="btn btn-primary">Update Post</button>
       </form>
     </Page>
   );
