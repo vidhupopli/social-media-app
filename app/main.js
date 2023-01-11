@@ -21,6 +21,7 @@ import CreatePost from './components/create-post';
 import SinglePost from './components/single-post';
 import FlashMessages from './components/flash-messages';
 import Profile from './components/profile';
+import EditPost from './components/edit-post';
 
 function Main() {
   const initalStateVal = {
@@ -50,7 +51,7 @@ function Main() {
   /////////////////////
   //loading and persisting state data
   /////////////////////
-  // function executes first time Main component is rendered
+  // when main component is mounted:
   useEffect(() => {
     const obtainedStringifiedData = localStorage.getItem('persistedUserData');
 
@@ -60,7 +61,7 @@ function Main() {
     }
   }, []);
 
-  // function runs everytime userCredentials portion of the state is updated
+  // when portion of state changes:
   useEffect(() => {
     // if userCredentials in state is null then remove persisted user data. Do nothing further.
     if (!stateRef.userCredentials) return localStorage.removeItem('persistedUserData');
@@ -83,6 +84,7 @@ function Main() {
             <Route path="/terms" element={<Terms />} />
             <Route path="/create-post" element={<CreatePost />} />
             <Route path="/post/:id" element={<SinglePost />} />
+            <Route path="/post/:id/edit" element={<EditPost />} />
             <Route path="/profile/:username*" element={<Profile />} />
           </Routes>
           <Footer />

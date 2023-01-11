@@ -44,9 +44,9 @@ function SinglePost() {
       <div className="d-flex justify-content-between">
         <h2>{singlePostData.title}</h2>
         <span className="pt-2">
-          <a id="edit-button" data-tooltip-content="Edit" href="#" className="text-primary mr-2">
+          <Link id="edit-button" data-tooltip-content="Edit" to={`/post/${id}/edit`} className="text-primary mr-2">
             <i className="fas fa-edit"></i>
-          </a>
+          </Link>
           <Tooltip anchorId="edit-button" />
           <a id="delete-button" data-tooltip-content="Delete" className="delete-post-button text-danger" title="Delete">
             <i className="fas fa-trash"></i>
