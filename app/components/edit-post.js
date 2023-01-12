@@ -13,7 +13,7 @@ import LoadingDots from './loading-dots';
 
 function EditPost() {
   const globalStateUpdator = useContext(StateUpdatorContext);
-  const state = useContext(StateContext);
+  const globalState = useContext(StateContext);
   const giveFlowToRouterFor = useNavigate();
 
   // state for the input fields, id-data required to obtain post details, etc.
@@ -31,9 +31,9 @@ function EditPost() {
     id: useParams().id,
     dataReceivedFromServer: false,
     postUpdated: false,
-    axiousReqCount: 0
+    axiosEditPostReqCount: 0
   };
-  const updateState = function (curMutableStateValue, situationObj) {
+  const updateLocalStateReducer = function (curMutableStateValue, situationObj) {
     switch (situationObj.name) {
       case 'serverSentPostData':
         curMutableStateValue.dataReceivedFromServer = true;
@@ -46,23 +46,30 @@ function EditPost() {
       case 'bodyChange':
         curMutableStateValue.body.value = situationObj.newValue;
         break;
+      case 'newEditPostReq':
+        curMutableStateValue.axiosEditPostReqCount++;
+        break;
     }
   };
-  const [localState, updateStateWrapper] = useImmerReducer(updateState, initialStateValue);
+  const [localState, localStateUpdator] = useImmerReducer(updateLocalStateReducer, initialStateValue);
 
   // initiates in the bg when the component first loads in the bg. Get request to obtain existing post details is being made here.
   useEffect(() => {
+    const axiosReqRef = axios.CancelToken.source();
+
     (async function () {
       try {
         // obtain post data from server
-        const serverResponse = await axios.get(`/post/${localState.id}`);
+        const serverResponse = await axios.get(`/post/${localState.id}`, { cancelToken: axiosReqRef.token });
 
         // data has been recd, and input fields values are available: update state to reflect this
-        updateStateWrapper({ name: 'serverSentPostData', postData: serverResponse.data });
+        localStateUpdator({ name: 'serverSentPostData', postData: serverResponse.data });
       } catch (err) {
         console.log(err);
       }
     })();
+
+    return () => axiosReqRef.cancel();
   }, []);
 
   /////////////
@@ -70,25 +77,41 @@ function EditPost() {
   /////////////
   // 1. onSubmitHandler is being used to update a state value to signal a post request
   // 2. useEffect that is watching for that state is used to make the network request
-  // 3. weird adherence to the notion that useEffects are right places to send network requests from. Why not just send network request from the the editPost handler as commented down below?
-
+  // 3. weird adherence to the notion that useEffects are right places to send network requests from. Why not just send network request from the the editPost handler?
+  //1 -------------------->
   const editPostHandler = async function (e) {
     e.preventDefault();
-    try {
-      // send the request for editing the form over here
-      await axios.post(`/post/${localState.id}/edit`, { title: localState.title.value, body: localState.body.value, token: state.userCredentials.token });
-      // alert('database edited!');
-
-      // after the post has been edited, update message state
-      // this leads to re-rendering of a component that's outside of the router
-      globalStateUpdator({ type: 'addFlashMessage', newMessage: 'Succssfully edited post!' });
-
-      // after the form has been successfully edited unmount this component and mount the single post component via the router
-      giveFlowToRouterFor(`/post/${localState.id}`);
-    } catch (err) {
-      console.log(err);
-    }
+    localStateUpdator({ name: 'newEditPostReq' });
   };
+  //2 -------------------->
+  useEffect(() => {
+    // this conditional is just to ensure that this useEffect doesn't run the first time 'EditPost' is mounted.
+    if (localState.axiosEditPostReqCount === 0) return;
+
+    // generate ref to attach to post req subsiquently made
+    const axiosReqRef = axios.CancelToken.source();
+
+    // make edit post request, and do other things if successful
+    (async function () {
+      try {
+        // send the request for editing the form over here
+        await axios.post(`/post/${localState.id}/edit`, { title: localState.title.value, body: localState.body.value, token: globalState.userCredentials.token }, { cancelToken: axiosReqRef.token });
+        // alert('database edited!');
+
+        // after the post has been edited, update flash message state
+        // this leads to re-rendering of a component that's outside of the router
+        globalStateUpdator({ type: 'addFlashMessage', newMessage: 'Succssfully edited post!' });
+
+        // after the form has been successfully edited unmount this component and mount the single post component via the router
+        giveFlowToRouterFor(`/post/${localState.id}`);
+      } catch (err) {
+        console.log(err);
+      }
+    })();
+
+    // use req reference to reject the request promise IF this 'EditPost' component is unmounted while the the promise is pending.
+    return () => axiosReqRef.cancel();
+  }, [localState.axiosEditPostReqCount]);
 
   // jsx to return if the data has NOT been recd
   if (!localState.dataReceivedFromServer) {
@@ -107,14 +130,14 @@ function EditPost() {
           <label htmlFor="post-title" className="text-muted mb-1">
             <small>Title</small>
           </label>
-          <input onChange={e => updateStateWrapper({ name: 'titleChange', newValue: e.target.value })} value={localState.title.value} autoFocus name="title" id="post-title" className="form-control form-control-lg form-control-title" type="text" placeholder="" autoComplete="off" />
+          <input onChange={e => localStateUpdator({ name: 'titleChange', newValue: e.target.value })} value={localState.title.value} autoFocus name="title" id="post-title" className="form-control form-control-lg form-control-title" type="text" placeholder="" autoComplete="off" />
         </div>
 
         <div className="form-group">
           <label htmlFor="post-body" className="text-muted mb-1 d-block">
             <small>Body Content</small>
           </label>
-          <textarea onChange={e => updateStateWrapper({ name: 'bodyChange', newValue: e.target.value })} value={localState.body.value} name="body" id="post-body" className="body-content tall-textarea form-control" type="text"></textarea>
+          <textarea onChange={e => localStateUpdator({ name: 'bodyChange', newValue: e.target.value })} value={localState.body.value} name="body" id="post-body" className="body-content tall-textarea form-control" type="text"></textarea>
         </div>
 
         <button className="btn btn-primary">Update Post</button>
