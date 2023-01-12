@@ -1,6 +1,7 @@
-import React, { useEffect, useState, useContext } from 'react';
+import React, { useEffect, useContext } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import axios from 'axios';
+import { useImmerReducer } from 'use-immer';
 
 // my contexts
 import StateUpdatorContext from '../contexts/state-updator-context';
@@ -11,31 +12,47 @@ import Page from './page';
 import LoadingDots from './loading-dots';
 
 function EditPost() {
-  const { id } = useParams();
-
-  // input field states
-  const [title, setTitle] = useState('');
-  const [body, setBody] = useState('');
-
-  // state to keep track of whether or not the data has been fetched
-  const [dataReceived, setDataReceived] = useState(false);
-
   const stateUpdatorFn = useContext(StateUpdatorContext);
   const state = useContext(StateContext);
-
   const giveFlowToRouterFor = useNavigate();
+
+  // state for the input fields, id-data required to obtain post details, etc.
+  const initialStateValue = {
+    title: {
+      value: '',
+      hasErrors: false,
+      message: ''
+    },
+    body: {
+      value: '',
+      hasErrors: false,
+      message: ''
+    },
+    id: useParams().id,
+    dataReceivedFromServer: false,
+    postUpdated: false,
+    axiousReqCount: 0
+  };
+  const updateState = function (curMutableStateValue, phActionObj) {
+    switch (phActionObj.situation) {
+      case 'serverSentPostData':
+        curMutableStateValue.dataReceivedFromServer = true;
+        curMutableStateValue.title.value = phActionObj.postData.title;
+        curMutableStateValue.body.value = phActionObj.postData.body;
+        break; //can also write return
+    }
+  };
+  const [localState, updateStateWrapper] = useImmerReducer(updateState, initialStateValue);
 
   // initiates in the bg when the component first loads in the bg
   useEffect(() => {
     (async function () {
       try {
         // obtain post data from server
-        const serverResponse = await axios.get(`/post/${id}`);
+        const serverResponse = await axios.get(`/post/${localState.id}`);
 
-        // update state for the input fields
-        setDataReceived(true);
-        setTitle(serverResponse.data.title);
-        setBody(serverResponse.data.body);
+        // data has been recd, and input fields values are available: update state to reflect this
+        updateStateWrapper({ situation: 'serverSentPostData', postData: serverResponse.data });
       } catch (err) {
         console.log(err);
       }
@@ -61,7 +78,7 @@ function EditPost() {
   };
 
   // jsx to return if the data has NOT been recd
-  if (!dataReceived) {
+  if (!localState.dataReceivedFromServer) {
     return (
       <Page title="Loading..." narrow={true}>
         <LoadingDots />
@@ -77,15 +94,14 @@ function EditPost() {
           <label htmlFor="post-title" className="text-muted mb-1">
             <small>Title</small>
           </label>
-          {/* the value of the title input field depends on a state, however, we make it editable by having this handler function */}
-          <input value={title} onChange={e => setTitle(e.target.value)} autoFocus name="title" id="post-title" className="form-control form-control-lg form-control-title" type="text" placeholder="" autoComplete="off" />
+          <input value={localState.title.value} autoFocus name="title" id="post-title" className="form-control form-control-lg form-control-title" type="text" placeholder="" autoComplete="off" />
         </div>
 
         <div className="form-group">
           <label htmlFor="post-body" className="text-muted mb-1 d-block">
             <small>Body Content</small>
           </label>
-          <textarea value={body} onChange={e => setBody(e.target.value)} name="body" id="post-body" className="body-content tall-textarea form-control" type="text"></textarea>
+          <textarea value={localState.body.value} name="body" id="post-body" className="body-content tall-textarea form-control" type="text"></textarea>
         </div>
 
         <button className="btn btn-primary">Update Post</button>
