@@ -153,8 +153,9 @@ function EditPost() {
           <textarea onChange={e => localStateUpdator({ name: 'bodyChange', newValue: e.target.value })} value={localState.body.value} name="body" id="post-body" className="body-content tall-textarea form-control" type="text"></textarea>
         </div>
 
-        {/* conditional switching based on local state to determine whether button is clickable or not: */}
-        <button className={'btn btn-primary ' + (localState.editPostUserRequestPending ? 'btn-dissabled' : '')}>Update Post</button>
+        <button className="btn btn-primary" disabled={localState.editPostUserRequestPending}>
+          Update Post
+        </button>
       </form>
     </Page>
   );
