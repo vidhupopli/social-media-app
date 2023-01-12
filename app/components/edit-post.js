@@ -31,7 +31,8 @@ function EditPost() {
     id: useParams().id,
     dataReceivedFromServer: false,
     postUpdated: false,
-    axiosEditPostReqCount: 0
+    axiosEditPostReqCount: 0,
+    editPostUserRequestPending: false
   };
   const updateLocalStateReducer = function (curMutableStateValue, situationObj) {
     switch (situationObj.name) {
@@ -48,6 +49,12 @@ function EditPost() {
         break;
       case 'newEditPostReq':
         curMutableStateValue.axiosEditPostReqCount++;
+        break;
+      case 'userMadeRequestToEditPost':
+        curMutableStateValue.editPostUserRequestPending = true;
+        break;
+      case 'noPendingUserReqToEdit':
+        curMutableStateValue.editPostUserRequestPending = false;
         break;
     }
   };
@@ -88,6 +95,9 @@ function EditPost() {
     // this conditional is just to ensure that this useEffect doesn't run the first time 'EditPost' is mounted.
     if (localState.axiosEditPostReqCount === 0) return;
 
+    // user has made the request to edit the post so dissable the button
+    localStateUpdator({ name: 'userMadeRequestToEditPost' });
+
     // generate ref to attach to post req subsiquently made
     const axiosReqRef = axios.CancelToken.source();
 
@@ -98,12 +108,15 @@ function EditPost() {
         await axios.post(`/post/${localState.id}/edit`, { title: localState.title.value, body: localState.body.value, token: globalState.userCredentials.token }, { cancelToken: axiosReqRef.token });
         // alert('database edited!');
 
+        // please enable the button now
+        localStateUpdator({ name: 'noPendingUserReqToEdit' });
+
         // after the post has been edited, update flash message state
         // this leads to re-rendering of a component that's outside of the router
         globalStateUpdator({ type: 'addFlashMessage', newMessage: 'Succssfully edited post!' });
 
         // after the form has been successfully edited unmount this component and mount the single post component via the router
-        giveFlowToRouterFor(`/post/${localState.id}`);
+        // giveFlowToRouterFor(`/post/${localState.id}`);
       } catch (err) {
         console.log(err);
       }
@@ -140,7 +153,8 @@ function EditPost() {
           <textarea onChange={e => localStateUpdator({ name: 'bodyChange', newValue: e.target.value })} value={localState.body.value} name="body" id="post-body" className="body-content tall-textarea form-control" type="text"></textarea>
         </div>
 
-        <button className="btn btn-primary">Update Post</button>
+        {/* conditional switching based on local state to determine whether button is clickable or not: */}
+        <button className={'btn btn-primary ' + (localState.editPostUserRequestPending ? 'btn-dissabled' : '')}>Update Post</button>
       </form>
     </Page>
   );

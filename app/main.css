@@ -581,3 +581,10 @@ textarea.tall-textarea {
     opacity: 1;
   }
 }
+
+/* MY CLASSES BELOW */
+
+.btn-dissabled {
+  background-color: slategray !important;
+  pointer-events: none !important;
+}
