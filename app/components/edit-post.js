@@ -179,9 +179,11 @@ function EditPost() {
             <small>Body Content</small>
           </label>
           {/* alert ui component based on localstate */}
-          <div className={'validation-alert-box' + (localState.body.hasErrors ? '' : '--hide')}>
-            <p className="validation-alert-text">Field cannot be empty</p>
-          </div>
+          {localState.body.hasErrors && (
+            <div className="validation-alert-box">
+              <p className="validation-alert-text">Field cannot be empty</p>
+            </div>
+          )}
           <textarea onChange={e => localStateUpdator({ name: 'bodyChange', newValue: e.target.value })} value={localState.body.value} name="body" id="post-body" className="body-content tall-textarea form-control" type="text"></textarea>
         </div>
 
