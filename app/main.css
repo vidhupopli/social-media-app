@@ -588,3 +588,21 @@ textarea.tall-textarea {
   background-color: slategray !important;
   pointer-events: none !important;
 }
+
+.validation-alert-box {
+  display: flex;
+}
+
+.validation-alert-box--hide {
+  display: none;
+}
+
+.validation-alert-text {
+  margin-bottom: 0;
+  background-color: #ffc9c9;
+  border: 1px solid #ff8787;
+  padding: 2px 8px;
+  border-radius: 5px;
+  letter-spacing: 1px;
+  word-spacing: 2px;
+}

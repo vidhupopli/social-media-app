@@ -29,10 +29,10 @@ function EditPost() {
       message: ''
     },
     id: useParams().id,
-    dataReceivedFromServer: false,
-    postUpdated: false,
+    // dataReceivedFromServer: false,
+    // postUpdated: false,
     axiosEditPostReqCount: 0,
-    editPostUserRequestPending: false
+    userReqForEdit: false
   };
   const updateLocalStateReducer = function (curMutableStateValue, situationObj) {
     switch (situationObj.name) {
@@ -51,10 +51,30 @@ function EditPost() {
         curMutableStateValue.axiosEditPostReqCount++;
         break;
       case 'userMadeRequestToEditPost':
-        curMutableStateValue.editPostUserRequestPending = true;
+        // if there's an error, mark it
+        if (curMutableStateValue.title.value === '') {
+          curMutableStateValue.title.hasErrors = true;
+        } else {
+          // if there was error earlier, we need to ensure that it has been marked as removed
+          curMutableStateValue.title.hasErrors = false;
+        }
+
+        // if there's an error, mark it
+        if (curMutableStateValue.body.value === '') {
+          curMutableStateValue.body.hasErrors = true;
+        } else {
+          // if there was error earlier, we need to ensure that it has been marked as removed
+          curMutableStateValue.body.hasErrors = false;
+        }
+
+        // don't initiate a post request if either of the fields have errors
+        if (curMutableStateValue.title.hasErrors || curMutableStateValue.body.hasErrors) return;
+
+        curMutableStateValue.userReqForEdit = true;
+
         break;
       case 'noPendingUserReqToEdit':
-        curMutableStateValue.editPostUserRequestPending = false;
+        curMutableStateValue.userReqForEdit = false;
         break;
     }
   };
@@ -88,6 +108,10 @@ function EditPost() {
   //1 -------------------->
   const editPostHandler = async function (e) {
     e.preventDefault();
+
+    // Marks error states and if no error, user req state as true
+    localStateUpdator({ name: 'userMadeRequestToEditPost' });
+
     localStateUpdator({ name: 'newEditPostReq' });
   };
   //2 -------------------->
@@ -95,8 +119,8 @@ function EditPost() {
     // this conditional is just to ensure that this useEffect doesn't run the first time 'EditPost' is mounted.
     if (localState.axiosEditPostReqCount === 0) return;
 
-    // user has made the request to edit the post so dissable the button
-    localStateUpdator({ name: 'userMadeRequestToEditPost' });
+    // only if user request has been recorded has initiated, proceed further. Otherwise don't do anything.
+    if (!localState.userReqForEdit) return;
 
     // generate ref to attach to post req subsiquently made
     const axiosReqRef = axios.CancelToken.source();
@@ -143,6 +167,10 @@ function EditPost() {
           <label htmlFor="post-title" className="text-muted mb-1">
             <small>Title</small>
           </label>
+          {/* alert ui component based on localstate */}
+          <div className={'validation-alert-box' + (localState.title.hasErrors ? '' : '--hide')}>
+            <p className="validation-alert-text">Field cannot be empty</p>
+          </div>
           <input onChange={e => localStateUpdator({ name: 'titleChange', newValue: e.target.value })} value={localState.title.value} autoFocus name="title" id="post-title" className="form-control form-control-lg form-control-title" type="text" placeholder="" autoComplete="off" />
         </div>
 
@@ -150,10 +178,14 @@ function EditPost() {
           <label htmlFor="post-body" className="text-muted mb-1 d-block">
             <small>Body Content</small>
           </label>
+          {/* alert ui component based on localstate */}
+          <div className={'validation-alert-box' + (localState.body.hasErrors ? '' : '--hide')}>
+            <p className="validation-alert-text">Field cannot be empty</p>
+          </div>
           <textarea onChange={e => localStateUpdator({ name: 'bodyChange', newValue: e.target.value })} value={localState.body.value} name="body" id="post-body" className="body-content tall-textarea form-control" type="text"></textarea>
         </div>
 
-        <button className="btn btn-primary" disabled={localState.editPostUserRequestPending}>
+        <button className="btn btn-primary" disabled={localState.userReqForEdit}>
           Update Post
         </button>
       </form>
