@@ -12,7 +12,7 @@ import Page from './page';
 import LoadingDots from './loading-dots';
 
 function EditPost() {
-  const stateUpdatorFn = useContext(StateUpdatorContext);
+  const globalStateUpdator = useContext(StateUpdatorContext);
   const state = useContext(StateContext);
   const giveFlowToRouterFor = useNavigate();
 
@@ -33,18 +33,24 @@ function EditPost() {
     postUpdated: false,
     axiousReqCount: 0
   };
-  const updateState = function (curMutableStateValue, phActionObj) {
-    switch (phActionObj.situation) {
+  const updateState = function (curMutableStateValue, situationObj) {
+    switch (situationObj.name) {
       case 'serverSentPostData':
         curMutableStateValue.dataReceivedFromServer = true;
-        curMutableStateValue.title.value = phActionObj.postData.title;
-        curMutableStateValue.body.value = phActionObj.postData.body;
-        break; //can also write return
+        curMutableStateValue.title.value = situationObj.postData.title;
+        curMutableStateValue.body.value = situationObj.postData.body;
+        break; //can also write return. Because ultimately this function is anyway returning return undefined.
+      case 'titleChange':
+        curMutableStateValue.title.value = situationObj.newValue;
+        break;
+      case 'bodyChange':
+        curMutableStateValue.body.value = situationObj.newValue;
+        break;
     }
   };
   const [localState, updateStateWrapper] = useImmerReducer(updateState, initialStateValue);
 
-  // initiates in the bg when the component first loads in the bg
+  // initiates in the bg when the component first loads in the bg. Get request to obtain existing post details is being made here.
   useEffect(() => {
     (async function () {
       try {
@@ -52,26 +58,33 @@ function EditPost() {
         const serverResponse = await axios.get(`/post/${localState.id}`);
 
         // data has been recd, and input fields values are available: update state to reflect this
-        updateStateWrapper({ situation: 'serverSentPostData', postData: serverResponse.data });
+        updateStateWrapper({ name: 'serverSentPostData', postData: serverResponse.data });
       } catch (err) {
         console.log(err);
       }
     })();
   }, []);
 
+  /////////////
+  // 📝 OVERVIEW OF WHAT IS HAPPENING BELOW:
+  /////////////
+  // 1. onSubmitHandler is being used to update a state value to signal a post request
+  // 2. useEffect that is watching for that state is used to make the network request
+  // 3. weird adherence to the notion that useEffects are right places to send network requests from. Why not just send network request from the the editPost handler as commented down below?
+
   const editPostHandler = async function (e) {
     e.preventDefault();
     try {
       // send the request for editing the form over here
-      await axios.post(`/post/${id}/edit`, { title, body, token: state.userCredentials.token });
+      await axios.post(`/post/${localState.id}/edit`, { title: localState.title.value, body: localState.body.value, token: state.userCredentials.token });
       // alert('database edited!');
 
       // after the post has been edited, update message state
       // this leads to re-rendering of a component that's outside of the router
-      stateUpdatorFn({ type: 'addFlashMessage', newMessage: 'Succssfully edited post!' });
+      globalStateUpdator({ type: 'addFlashMessage', newMessage: 'Succssfully edited post!' });
 
       // after the form has been successfully edited unmount this component and mount the single post component via the router
-      giveFlowToRouterFor(`/post/${id}`);
+      giveFlowToRouterFor(`/post/${localState.id}`);
     } catch (err) {
       console.log(err);
     }
@@ -94,14 +107,14 @@ function EditPost() {
           <label htmlFor="post-title" className="text-muted mb-1">
             <small>Title</small>
           </label>
-          <input value={localState.title.value} autoFocus name="title" id="post-title" className="form-control form-control-lg form-control-title" type="text" placeholder="" autoComplete="off" />
+          <input onChange={e => updateStateWrapper({ name: 'titleChange', newValue: e.target.value })} value={localState.title.value} autoFocus name="title" id="post-title" className="form-control form-control-lg form-control-title" type="text" placeholder="" autoComplete="off" />
         </div>
 
         <div className="form-group">
           <label htmlFor="post-body" className="text-muted mb-1 d-block">
             <small>Body Content</small>
           </label>
-          <textarea value={localState.body.value} name="body" id="post-body" className="body-content tall-textarea form-control" type="text"></textarea>
+          <textarea onChange={e => updateStateWrapper({ name: 'bodyChange', newValue: e.target.value })} value={localState.body.value} name="body" id="post-body" className="body-content tall-textarea form-control" type="text"></textarea>
         </div>
 
         <button className="btn btn-primary">Update Post</button>
