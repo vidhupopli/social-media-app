@@ -29,10 +29,10 @@ function EditPost() {
       message: ''
     },
     id: useParams().id,
+    axiosEditPostReqCount: 0,
+    disableButtonForEditing: false
     // dataReceivedFromServer: false,
     // postUpdated: false,
-    axiosEditPostReqCount: 0,
-    userReqForEdit: false
   };
   const updateLocalStateReducer = function (curMutableStateValue, situationObj) {
     switch (situationObj.name) {
@@ -48,34 +48,33 @@ function EditPost() {
         curMutableStateValue.body.value = situationObj.newValue;
         break;
       case 'newEditPostReq':
+        if (!curMutableStateValue.title.value || !curMutableStateValue.body.value) return;
+
         curMutableStateValue.axiosEditPostReqCount++;
+
+        curMutableStateValue.disableButtonForEditing = true;
         break;
-      case 'userMadeRequestToEditPost':
-        // if there's an error, mark it
-        if (curMutableStateValue.title.value === '') {
+      case 'postReqComplete':
+        curMutableStateValue.disableButtonForEditing = false;
+        break;
+      case 'validateTitleInputField':
+        // It seems a little bit safer to pass the value of the input field to the dispatch object because we don't know the order of the callbacks for the onChange and onBlur will execute>
+        // if (curMutableStateValue.title.value) {
+        if (situationObj.valueOfTitle === '') {
           curMutableStateValue.title.hasErrors = true;
         } else {
-          // if there was error earlier, we need to ensure that it has been marked as removed
           curMutableStateValue.title.hasErrors = false;
         }
-
-        // if there's an error, mark it
-        if (curMutableStateValue.body.value === '') {
+        break;
+      case 'validateBodyInputField':
+        if (situationObj.valueOfBody === '') {
           curMutableStateValue.body.hasErrors = true;
         } else {
-          // if there was error earlier, we need to ensure that it has been marked as removed
           curMutableStateValue.body.hasErrors = false;
         }
-
-        // don't initiate a post request if either of the fields have errors
-        if (curMutableStateValue.title.hasErrors || curMutableStateValue.body.hasErrors) return;
-
-        curMutableStateValue.userReqForEdit = true;
-
         break;
-      case 'noPendingUserReqToEdit':
-        curMutableStateValue.userReqForEdit = false;
-        break;
+      default:
+        throw new Error('Invalid way to update the local state');
     }
   };
   const [localState, localStateUpdator] = useImmerReducer(updateLocalStateReducer, initialStateValue);
@@ -109,18 +108,13 @@ function EditPost() {
   const editPostHandler = async function (e) {
     e.preventDefault();
 
-    // Marks error states and if no error, user req state as true
-    localStateUpdator({ name: 'userMadeRequestToEditPost' });
-
+    // this triggers the axios post request, but will only happen if there was no error in the input fields as per the previous logic.
     localStateUpdator({ name: 'newEditPostReq' });
   };
   //2 -------------------->
   useEffect(() => {
     // this conditional is just to ensure that this useEffect doesn't run the first time 'EditPost' is mounted.
     if (localState.axiosEditPostReqCount === 0) return;
-
-    // only if user request has been recorded has initiated, proceed further. Otherwise don't do anything.
-    if (!localState.userReqForEdit) return;
 
     // generate ref to attach to post req subsiquently made
     const axiosReqRef = axios.CancelToken.source();
@@ -132,8 +126,8 @@ function EditPost() {
         await axios.post(`/post/${localState.id}/edit`, { title: localState.title.value, body: localState.body.value, token: globalState.userCredentials.token }, { cancelToken: axiosReqRef.token });
         // alert('database edited!');
 
-        // please enable the button now
-        localStateUpdator({ name: 'noPendingUserReqToEdit' });
+        // enables the button back for futher editing
+        localStateUpdator({ name: 'postReqComplete' });
 
         // after the post has been edited, update flash message state
         // this leads to re-rendering of a component that's outside of the router
@@ -167,11 +161,12 @@ function EditPost() {
           <label htmlFor="post-title" className="text-muted mb-1">
             <small>Title</small>
           </label>
-          {/* alert ui component based on localstate */}
+          {/* alert ui component before input field based on localstate */}
           <div className={'validation-alert-box' + (localState.title.hasErrors ? '' : '--hide')}>
             <p className="validation-alert-text">Field cannot be empty</p>
           </div>
-          <input onChange={e => localStateUpdator({ name: 'titleChange', newValue: e.target.value })} value={localState.title.value} autoFocus name="title" id="post-title" className="form-control form-control-lg form-control-title" type="text" placeholder="" autoComplete="off" />
+          {/* upon unfocussing of this element, update the localstate to determine whether error exist or not for this input field. */}
+          <input onBlur={e => localStateUpdator({ name: 'validateTitleInputField', valueOfTitle: e.target.value })} onChange={e => localStateUpdator({ name: 'titleChange', newValue: e.target.value })} value={localState.title.value} autoFocus name="title" id="post-title" className="form-control form-control-lg form-control-title" type="text" placeholder="" autoComplete="off" />
         </div>
 
         <div className="form-group">
@@ -184,10 +179,10 @@ function EditPost() {
               <p className="validation-alert-text">Field cannot be empty</p>
             </div>
           )}
-          <textarea onChange={e => localStateUpdator({ name: 'bodyChange', newValue: e.target.value })} value={localState.body.value} name="body" id="post-body" className="body-content tall-textarea form-control" type="text"></textarea>
+          <textarea onBlur={e => localStateUpdator({ name: 'validateBodyInputField', valueOfBody: e.target.value })} onChange={e => localStateUpdator({ name: 'bodyChange', newValue: e.target.value })} value={localState.body.value} name="body" id="post-body" className="body-content tall-textarea form-control" type="text"></textarea>
         </div>
 
-        <button className="btn btn-primary" disabled={localState.userReqForEdit}>
+        <button className="btn btn-primary" disabled={localState.disableButtonForEditing}>
           Update Post
         </button>
       </form>
