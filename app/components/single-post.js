@@ -8,10 +8,12 @@ import './../../node_modules/react-tooltip/dist/react-tooltip.css';
 // my components
 import Page from './page';
 import LoadingDots from './loading-dots';
+import PageNotFound from './page-not-found';
 
 function SinglePost() {
   const { id } = useParams();
   const [singlePostData, setSinglePostData] = useState(null);
+  const [postExists, setPostExists] = useState(true);
 
   // retrieve data
   useEffect(() => {
@@ -20,6 +22,11 @@ function SinglePost() {
     (async function () {
       try {
         const serverResponse = await axios.get(`/post/${id}`, { cancelToken: axiosRequestRef.token });
+
+        if (!serverResponse.data) {
+          setPostExists(false);
+          return;
+        }
 
         setSinglePostData(serverResponse.data);
       } catch (err) {
@@ -30,7 +37,16 @@ function SinglePost() {
     return () => axiosRequestRef.cancel();
   }, []);
 
-  // if the data isn't available yet:
+  // if the server sent no data intimating non-existence of post
+  if (!postExists) {
+    return (
+      <Page title="Page Not Found" narrow={true}>
+        <PageNotFound />
+      </Page>
+    );
+  }
+
+  // if the data isn't available yet, but the get request is in transit:
   if (!singlePostData)
     return (
       <Page title="Loading...">
