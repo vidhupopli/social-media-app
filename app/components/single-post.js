@@ -1,9 +1,12 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useContext } from 'react';
 import { useParams, Link } from 'react-router-dom';
 import axios from 'axios';
 import ReactMarkdown from 'react-markdown';
 import { Tooltip } from 'react-tooltip';
 import './../../node_modules/react-tooltip/dist/react-tooltip.css';
+
+// my contexts
+import GlobalStateContext from '../contexts/state-context';
 
 // my components
 import Page from './page';
@@ -11,6 +14,8 @@ import LoadingDots from './loading-dots';
 import PageNotFound from './page-not-found';
 
 function SinglePost() {
+  const globalState = useContext(GlobalStateContext);
+
   const { id } = useParams();
   const [singlePostData, setSinglePostData] = useState(null);
   const [postExists, setPostExists] = useState(true);
@@ -54,21 +59,34 @@ function SinglePost() {
       </Page>
     );
 
+  function isOwner() {
+    // return false if the user is not logged in --> leads to non-displaying of edit and delete btns.
+    if (!globalState.userCredentials) return false;
+
+    // return false if the user logged in is not the same as the author of the post. --> Also leads to non-displaying of edit and delete btns.
+    if (globalState.userCredentials.username !== singlePostData.author.username) return false;
+
+    return true;
+  }
+
   // if data becomes available:
   return (
     <Page title={singlePostData.title} narrow={true}>
       <div className="d-flex justify-content-between">
         <h2>{singlePostData.title}</h2>
-        <span className="pt-2">
-          <Link id="edit-button" data-tooltip-content="Edit" to={`/post/${id}/edit`} className="text-primary mr-2">
-            <i className="fas fa-edit"></i>
-          </Link>
-          <Tooltip anchorId="edit-button" />
-          <a id="delete-button" data-tooltip-content="Delete" className="delete-post-button text-danger" title="Delete">
-            <i className="fas fa-trash"></i>
-          </a>
-          <Tooltip anchorId="delete-button" />
-        </span>
+        {/* Only if the first value is true, JSX component is returned. */}
+        {isOwner() && (
+          <span className="pt-2">
+            <Link id="edit-button" data-tooltip-content="Edit" to={`/post/${id}/edit`} className="text-primary mr-2">
+              <i className="fas fa-edit"></i>
+            </Link>
+            <Tooltip anchorId="edit-button" />
+            <a id="delete-button" data-tooltip-content="Delete" className="delete-post-button text-danger" title="Delete">
+              <i className="fas fa-trash"></i>
+            </a>
+            <Tooltip anchorId="delete-button" />
+          </span>
+        )}
       </div>
 
       <p className="text-muted small mb-4">
