@@ -1,7 +1,12 @@
 // when component abstracting, this line is important
-import React from 'react';
+import React, { useContext, useEffect } from 'react';
+
+// my contexts
+import GlobalStateUpdatorContext from '../contexts/state-updator-context';
 
 function Search() {
+  const globalStateUpdator = useContext(GlobalStateUpdatorContext);
+
   return (
     <div className="search-overlay">
       <div className="search-overlay-top shadow-sm">
@@ -10,7 +15,8 @@ function Search() {
             <i className="fas fa-search"></i>
           </label>
           <input autofocus type="text" autocomplete="off" id="live-search-field" className="live-search-field" placeholder="What are you interested in?" />
-          <span className="close-live-search">
+          {/* Close button */}
+          <span onClick={e => globalStateUpdator({ type: 'closeSearch' })} className="close-live-search">
             <i className="fas fa-times-circle"></i>
           </span>
         </div>

@@ -98,8 +98,9 @@ function Main() {
             <Route path="*" element={<PageNotFound />} />
           </Routes>
           <Footer />
-          {globalState.isSearchOpen ? <Search /> : ''}
-          {/* <Search /> */}
+          {globalState.isSearchOpen && <Search />}
+          {/* Ternary operator can also be used. Returning empty string or false does not make this JS expression evaluate to any JSX that will be rendered. This ternary operator had not worked in a different location. */}
+          {/* {globalState.isSearchOpen ? <Search /> : ''} */}
         </BrowserRouter>
       </StateUpdatorContext.Provider>
     </StateContext.Provider>
