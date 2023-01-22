@@ -22,6 +22,7 @@ import SinglePost from './components/single-post';
 import FlashMessages from './components/flash-messages';
 import Profile from './components/profile';
 import EditPost from './components/edit-post';
+import PageNotFound from './components/page-not-found';
 
 function Main() {
   const initalStateVal = {
@@ -86,6 +87,7 @@ function Main() {
             <Route path="/post/:id" element={<SinglePost />} />
             <Route path="/post/:id/edit" element={<EditPost />} />
             <Route path="/profile/:username*" element={<Profile />} />
+            <Route path="*" element={<PageNotFound />} />
           </Routes>
           <Footer />
         </BrowserRouter>
