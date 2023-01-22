@@ -28,7 +28,8 @@ import Search from './components/search';
 function Main() {
   const initalStateVal = {
     userCredentials: null,
-    flashMessages: []
+    flashMessages: [],
+    isSearchOpen: false
   };
 
   const customUpdateStateFn = function (currMutableStateVal, phActionObj) {
@@ -43,12 +44,18 @@ function Main() {
       case 'addFlashMessage':
         currMutableStateVal.flashMessages.push(phActionObj.newMessage);
         break;
+      case 'openSearch':
+        currMutableStateVal.isSearchOpen = true;
+        break;
+      case 'closeSearch':
+        currMutableStateVal.isSearchOpen = false;
+        break;
       default:
         throw new Error('Invalid action type');
     }
   };
 
-  const [stateRef, wrapperUpdateStateFn] = useImmerReducer(customUpdateStateFn, initalStateVal);
+  const [globalState, globalStateUpdator] = useImmerReducer(customUpdateStateFn, initalStateVal);
 
   /////////////////////
   //loading and persisting state data
@@ -59,24 +66,24 @@ function Main() {
 
     //if data exists, update react user data state
     if (obtainedStringifiedData) {
-      wrapperUpdateStateFn({ type: 'login', data: JSON.parse(obtainedStringifiedData) });
+      globalStateUpdator({ type: 'login', data: JSON.parse(obtainedStringifiedData) });
     }
   }, []);
 
   // when portion of state changes:
   useEffect(() => {
     // if userCredentials in state is null then remove persisted user data. Do nothing further.
-    if (!stateRef.userCredentials) return localStorage.removeItem('persistedUserData');
+    if (!globalState.userCredentials) return localStorage.removeItem('persistedUserData');
 
     // otherwise:-
-    const stringifiedUserData = JSON.stringify(stateRef.userCredentials);
+    const stringifiedUserData = JSON.stringify(globalState.userCredentials);
     localStorage.setItem('persistedUserData', stringifiedUserData);
-  }, [stateRef.userCredentials]);
+  }, [globalState.userCredentials]);
   /////////////////////
 
   return (
-    <StateContext.Provider value={stateRef}>
-      <StateUpdatorContext.Provider value={wrapperUpdateStateFn}>
+    <StateContext.Provider value={globalState}>
+      <StateUpdatorContext.Provider value={globalStateUpdator}>
         <BrowserRouter>
           <FlashMessages />
           <Header />
@@ -91,7 +98,8 @@ function Main() {
             <Route path="*" element={<PageNotFound />} />
           </Routes>
           <Footer />
-          <Search />
+          {globalState.isSearchOpen ? <Search /> : ''}
+          {/* <Search /> */}
         </BrowserRouter>
       </StateUpdatorContext.Provider>
     </StateContext.Provider>
