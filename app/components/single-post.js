@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useContext } from 'react';
-import { useParams, Link } from 'react-router-dom';
+import { useParams, Link, useNavigate } from 'react-router-dom';
 import axios from 'axios';
 import ReactMarkdown from 'react-markdown';
 import { Tooltip } from 'react-tooltip';
@@ -7,6 +7,7 @@ import './../../node_modules/react-tooltip/dist/react-tooltip.css';
 
 // my contexts
 import GlobalStateContext from '../contexts/state-context';
+import GlobalStateUpdatorContext from '../contexts/state-updator-context';
 
 // my components
 import Page from './page';
@@ -15,6 +16,8 @@ import PageNotFound from './page-not-found';
 
 function SinglePost() {
   const globalState = useContext(GlobalStateContext);
+  const globalStateUpdator = useContext(GlobalStateUpdatorContext);
+  const giveFlowToRouter = useNavigate();
 
   const { id } = useParams();
   const [singlePostData, setSinglePostData] = useState(null);
@@ -69,6 +72,29 @@ function SinglePost() {
     return true;
   }
 
+  // handler functions can be made directly async.
+  const deleteHandler = async function (e) {
+    const deletePostConfirmation = window.confirm('Do you really want to delete this post?');
+
+    if (deletePostConfirmation) {
+      // send axios req to delete post
+      try {
+        const serverResponse = await axios.delete(`/post/${id}`, { data: { token: globalState.userCredentials.token } }); //(api endpoint, data we wanna send)
+
+        // check if delete request was success
+        if (serverResponse.data === 'Success') {
+          // 1. Display a flash message
+          globalStateUpdator({ type: 'addFlashMessage', newMessage: 'Successfully deleted post' });
+
+          // 2. Redirect back to current user's profile
+          giveFlowToRouter(`/profile/${globalState.userCredentials.username}`);
+        }
+      } catch (err) {
+        console.log(err);
+      }
+    }
+  };
+
   // if data becomes available:
   return (
     <Page title={singlePostData.title} narrow={true}>
@@ -81,7 +107,7 @@ function SinglePost() {
               <i className="fas fa-edit"></i>
             </Link>
             <Tooltip anchorId="edit-button" />
-            <a id="delete-button" data-tooltip-content="Delete" className="delete-post-button text-danger" title="Delete">
+            <a onClick={deleteHandler} id="delete-button" data-tooltip-content="Delete" className="delete-post-button text-danger" title="Delete">
               <i className="fas fa-trash"></i>
             </a>
             <Tooltip anchorId="delete-button" />
