@@ -23,6 +23,7 @@ import FlashMessages from './components/flash-messages';
 import Profile from './components/profile';
 import EditPost from './components/edit-post';
 import PageNotFound from './components/page-not-found';
+import Search from './components/search';
 
 function Main() {
   const initalStateVal = {
@@ -90,6 +91,7 @@ function Main() {
             <Route path="*" element={<PageNotFound />} />
           </Routes>
           <Footer />
+          <Search />
         </BrowserRouter>
       </StateUpdatorContext.Provider>
     </StateContext.Provider>
