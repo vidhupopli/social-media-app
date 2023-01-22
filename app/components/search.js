@@ -7,6 +7,25 @@ import GlobalStateUpdatorContext from '../contexts/state-updator-context';
 function Search() {
   const globalStateUpdator = useContext(GlobalStateUpdatorContext);
 
+  const searchKeyPressHandler = function (e) {
+    // **this function by default runs everytime a key is pressed** //
+
+    // esc key happens to have the keyCode of 27
+    if (e.keyCode === 27) {
+      globalStateUpdator({ type: 'closeSearch' });
+    }
+  };
+
+  // Runs the everytime the component is mounted.
+  useEffect(() => {
+    // New event listener is added if <Search /> is mounted.
+    document.addEventListener('keyup', searchKeyPressHandler);
+
+    // returning a cleanup function, which runs when <Search /> is unmounted.
+    // we wanna get rid of the event listner we had attached to the document obj.
+    return () => document.removeEventListener('keyup', searchKeyPressHandler);
+  }, []);
+
   return (
     <div className="search-overlay">
       <div className="search-overlay-top shadow-sm">
