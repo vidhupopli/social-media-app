@@ -1,17 +1,32 @@
-import React, { useContext } from 'react';
+import React, { useContext, useEffect, useRef } from 'react';
 
 import GlobalStateContext from '../contexts/state-context';
+import GlobalStateUpdatorContext from '../contexts/state-updator-context';
 
 function Chat() {
   const globalState = useContext(GlobalStateContext);
-  // DEF3
-  console.log(globalState.isChatOpen);
+  const globalStateUpdator = useContext(GlobalStateUpdatorContext);
+
+  const intialVal = null;
+  const chatField = useRef(intialVal); //mutable | compo that are dependent won't re-render if chatField changes
+
+  // console.log(globalState.isChatOpen);
+
+  // Everytime isChatOpen property is set, this runs. Also runs on the first mounting of Chat.
+  useEffect(() => {
+    // do nothing if the chat is not supposed to be open.
+    if (!globalState.isChatOpen) return;
+
+    // .current to access value of the element
+    // we're using a useRef ref instead of using document.querySelector(...).focus()
+    chatField.current.focus();
+  }, [globalState.isChatOpen]);
 
   return (
     <div id="chat-wrapper" className={'chat-wrapper shadow border-top border-left border-right ' + (globalState.isChatOpen ? 'chat-wrapper--is-visible' : '')}>
       <div className="chat-title-bar bg-primary">
         Chat
-        <span className="chat-title-bar-close">
+        <span onClick={e => globalStateUpdator({ type: 'closeChat' })} className="chat-title-bar-close">
           <i className="fas fa-times-circle"></i>
         </span>
       </div>
@@ -38,7 +53,7 @@ function Chat() {
         </div>
       </div>
       <form id="chatForm" className="chat-form border-top">
-        <input type="text" className="chat-field" id="chatField" placeholder="Type a message…" autoComplete="off" />
+        <input ref={chatField} type="text" className="chat-field" id="chatField" placeholder="Type a message…" autoComplete="off" />
       </form>
     </div>
   );
