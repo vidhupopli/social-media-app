@@ -52,7 +52,7 @@ function Search() {
           // to signal running of the next useEffect
           curStateVal.requestCount++;
         });
-      }, 3000);
+      }, 1000);
 
       // Note: returning a cleanup function. Cleanup function doesn't just run when the component unmounts, but also, cleanup function of the first instance of useEffect runs when the next useEffect runs. Only after the cleanup of the previous useEffect has run, the next useEffect runs.
       return () => clearTimeout(delay);
