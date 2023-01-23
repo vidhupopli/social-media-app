@@ -30,9 +30,9 @@ function HeaderLoggedIn() {
       </a>
       <Tooltip anchorId="search-button" />
       {/* can be used to put a single space between two elements, no matter how much space characters are inside the quotes though. */}{' '}
-      <span onClick={e => globalStateUpdator({ type: 'toggleChat' })} id="chat-button" data-tooltip-content="Chat" className="mr-2 header-chat-icon text-white">
+      <span onClick={e => globalStateUpdator({ type: 'toggleChat' })} id="chat-button" data-tooltip-content="Chat" className={'mr-2 header-chat-icon ' + (globalState.unreadChatCount ? 'text-danger' : 'text-white')}>
         <i className="fas fa-comment"></i>
-        <span className="chat-count-badge text-white"> </span>
+        {globalState.unreadChatCount ? <span className="chat-count-badge text-white">{globalState.unreadChatCount < 10 ? globalState.unreadChatCount : '9+'}</span> : ''}
       </span>
       <Tooltip anchorId="chat-button" /> {/* Click on this below to give flow to router */}
       <Link id="profile-button" data-tooltip-content="Profile" to={`/profile/${globalState.userCredentials.username}`} className="mr-2">

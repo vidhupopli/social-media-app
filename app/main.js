@@ -34,7 +34,8 @@ function Main() {
     userCredentials: null,
     flashMessages: [],
     isSearchOpen: false,
-    isChatOpen: false
+    isChatOpen: false,
+    unreadChatCount: 0
   };
 
   const customUpdateStateFn = function (currMutableStateVal, phActionObj) {
@@ -60,6 +61,12 @@ function Main() {
         break;
       case 'closeChat':
         currMutableStateVal.isChatOpen = false;
+        break;
+      case 'incrementUnreadChatCount':
+        currMutableStateVal.unreadChatCount++;
+        break;
+      case 'clearUnreadChatCount':
+        currMutableStateVal.unreadChatCount = 0;
         break;
       default:
         throw new Error('Invalid action type');

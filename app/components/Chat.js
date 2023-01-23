@@ -34,6 +34,9 @@ function Chat() {
     // .current to access value of the element
     // we're using a useRef ref instead of using document.querySelector(...).focus()
     chatField.current.focus();
+
+    //as soon as the chat window is open, clear the unread msg count
+    globalStateUpdator({ type: 'clearUnreadChatCount' });
   }, [globalState.isChatOpen]);
 
   // listening for a particular type of data sent by server indefinitely | runs the first time the compo is mounted
@@ -47,10 +50,15 @@ function Chat() {
     });
   }, []);
 
-  // we wanna run a code everytime new message is added
+  // we wanna run a code everytime new message is added to the state.
   useEffect(() => {
     // like using document.querySelector(......).scrollTop
     chatLog.current.scrollTop = chatLog.current.scrollHeight;
+
+    // increment the count of unreadMessages state only if the chat window is not open and if there exists at least one msg
+    if (localState.chatMessages.length && !globalState.isChatOpen) {
+      globalStateUpdator({ type: 'incrementUnreadChatCount' });
+    }
   }, [localState.chatMessages]);
 
   const handleFieldChange = function (e) {
