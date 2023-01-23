@@ -3,6 +3,8 @@ import ReactDOM from 'react-dom/client';
 import { useImmerReducer } from 'use-immer';
 import { BrowserRouter, Routes, Route } from 'react-router-dom';
 import { CSSTransition } from 'react-transition-group';
+// CSS file needed by Tooltip components throughout the app
+import './../node_modules/react-tooltip/dist/react-tooltip.css';
 
 // setting up baseUrl to be used with axios
 import axios from 'axios';

@@ -3,7 +3,6 @@ import { useParams, Link, useNavigate } from 'react-router-dom';
 import axios from 'axios';
 import ReactMarkdown from 'react-markdown';
 import { Tooltip } from 'react-tooltip';
-import './../../node_modules/react-tooltip/dist/react-tooltip.css';
 
 // my contexts
 import GlobalStateContext from '../contexts/state-context';
