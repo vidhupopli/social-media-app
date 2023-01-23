@@ -125,7 +125,7 @@ function Search() {
           <div className={'live-search-results ' + (localState.show === 'results' ? 'live-search-results--visible' : '')}>
             <div className="list-group shadow-sm">
               <div className="list-group-item active">
-                <strong>Search Results</strong> ({localState.results.length} items found)
+                <strong>Search Results</strong> ({localState.results.length} {localState.results.length > 1 ? 'items' : 'item'} found)
               </div>
               {/* search result items below */}
               {[
