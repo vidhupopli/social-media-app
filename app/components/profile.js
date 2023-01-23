@@ -1,5 +1,5 @@
 import React, { useContext, useEffect } from 'react';
-import { useParams } from 'react-router-dom';
+import { useParams, NavLink, Routes, Route } from 'react-router-dom';
 import { useImmer } from 'use-immer';
 import axios from 'axios';
 
@@ -31,8 +31,6 @@ function Profile() {
     stopFollowingRequestCount: 0
   };
   const [localState, setLocalState] = useImmer(initialValue);
-
-  // guideline: do not put the async function outside of the useEffect
 
   // obtain profile data | running arrowFn when this compo is mounted, and also when the url id changes. The latter helps solve a bug.
   // this useEffect also runs when the globalState changes. This solves the bug of making network request before the globalState has been loaded into from the localstorage.
@@ -145,18 +143,26 @@ function Profile() {
       </h2>
 
       <div className="profile-nav nav nav-tabs pt-2 mb-4">
-        <a href="#" className="active nav-item nav-link">
+        {/* NavLink is just like Link component that's used to replace the anchor tags */}
+        {/* By default the Posts is active. end ensures that if the other tabs are active, this first Post tab isn't active*/}
+        <NavLink to="" end className="active nav-item nav-link">
           Posts: {localState.profileData.counts.postCount}
-        </a>
-        <a href="#" className="nav-item nav-link">
+        </NavLink>
+        {/* Apprently this is relative route link */}
+        <NavLink to="followers" className="nav-item nav-link">
           Followers: {localState.profileData.counts.followerCount}
-        </a>
-        <a href="#" className="nav-item nav-link">
+        </NavLink>
+        <NavLink to="following" className="nav-item nav-link">
           Following: {localState.profileData.counts.followingCount}
-        </a>
+        </NavLink>
       </div>
 
-      <ProfilePosts />
+      {/* not used the BrowserRouter component as in the main.js. Also the NavLink gives flow to this Routes switching component. */}
+      <Routes>
+        <Route path="" element={<ProfilePosts />} />
+        <Route path="followers" element={<ProfilePosts />} />
+        <Route path="following" element={<ProfilePosts />} />
+      </Routes>
     </Page>
   );
 }
