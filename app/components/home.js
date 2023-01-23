@@ -44,20 +44,20 @@ function Home() {
     return () => axiosRequestRef.cancel();
   }, [globalState]);
 
-  // render this JSX if the user is logged in, and if he is indeed logged in, network request is still being made trying to retrieve a feed to display.
-  if (localState.isLoading) {
-    return (
-      <Page title="Loading" narrow={false}>
-        <LoadingDots />
-      </Page>
-    );
-  }
-
   // If the user is not even logged in then render this piece of jsx.
   if (!globalState.userCredentials) {
     return (
       <Page title="Home" narrow={false}>
         <HomeGuest />
+      </Page>
+    );
+  }
+
+  // render this JSX if the user is logged in, and if he is indeed logged in, network request is still being made trying to retrieve a feed to display.
+  if (localState.isLoading) {
+    return (
+      <Page title="Loading" narrow={false}>
+        <LoadingDots />
       </Page>
     );
   }
