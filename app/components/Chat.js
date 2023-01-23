@@ -1,6 +1,8 @@
 import React, { useContext, useEffect, useRef } from 'react';
+import { Link } from 'react-router-dom';
 import { useImmer } from 'use-immer'; //like useState
 
+// We install this package and import this function.
 import { io } from 'socket.io-client';
 // establish ongoing connection between browser and server
 const socket = io('http://localhost:8080');
@@ -31,8 +33,9 @@ function Chat() {
     chatField.current.focus();
   }, [globalState.isChatOpen]);
 
-  // listening for a particular type of data from server | runs the first time the compo is mounted
+  // listening for a particular type of data sent by server indefinitely | runs the first time the compo is mounted
   useEffect(() => {
+    // in the bg, we will have a listner listerning for this particular type of data that the server may sent to us. if it is sent we store it in localstate.
     // (typeOfEventServerBroadcastedToUsThatWeAReInterestedIn, functionThatRunsWhenServerSendsUsThisTypeOfData)
     socket.on('chatFromServer', message => {
       setLocalState(curVal => {
@@ -52,7 +55,7 @@ function Chat() {
   const handleSubmit = function (e) {
     e.preventDefault();
 
-    // send message to chat server (axios is not right tool for the job)
+    // send message to server (axios is not right tool for the job)
     // (eventTypeName that the server is expecting, dataToSend})
     // after server receives this data and accepts it, it then broadcasts it to all others with open socket connection to the server listening for a particular type of data
     socket.emit('chatFromBrowser', { message: localState.fieldValue, token: globalState.userCredentials.token });
@@ -83,9 +86,12 @@ function Chat() {
             return (
               <div key={index} className="chat-self">
                 <div className="chat-message">
+                  {/* don't need to view your own name in the chat window */}
                   <div className="chat-message-inner">{msg.message}</div>
                 </div>
-                <img className="chat-avatar avatar-tiny" src={msg.avatar} />
+                <Link to={`/profile/${msg.username}`}>
+                  <img className="chat-avatar avatar-tiny" src={msg.avatar} />
+                </Link>
               </div>
             );
           }
@@ -93,11 +99,16 @@ function Chat() {
           // if we someone else sent the msg
           return (
             <div key={index} className="chat-other">
-              <a href="#">
+              <Link to={`/profile/${msg.username}`}>
                 <img className="avatar-tiny" src={msg.avatar} />
-              </a>
+              </Link>
               <div className="chat-message">
-                <div className="chat-message-inner">{msg.message}</div>
+                <div className="chat-message-inner">
+                  <Link to={`/profile/${msg.username}`}>
+                    <strong>{msg.username}: </strong>
+                  </Link>
+                  {msg.message}
+                </div>
               </div>
             </div>
           );
