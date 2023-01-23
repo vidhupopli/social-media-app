@@ -11,6 +11,7 @@ function ProfilePosts() {
   const [isLoading, setIsLoading] = useState(true); //data hasn't successfully loaded yet from axios request
   const [posts, setPosts] = useState([]); //posts data
 
+  // runs 1) when the compo is mounted, 2) when the url changes
   useEffect(() => {
     const axiosRequestRef = axios.CancelToken.source();
 
@@ -27,7 +28,7 @@ function ProfilePosts() {
     })();
 
     return () => axiosRequestRef.cancel();
-  }, []);
+  }, [username]);
 
   if (isLoading) {
     return <LoadingDots />;

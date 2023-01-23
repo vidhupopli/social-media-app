@@ -26,7 +26,7 @@ function Profile() {
 
   // guideline: do not put the async function outside of the useEffect
 
-  // running arrowFn when this compo is mounted
+  // running arrowFn when this compo is mounted, and also when the url id changes. The latter helps solve a bug.
   useEffect(() => {
     const axiosRequestRef = axios.CancelToken.source();
 
@@ -41,7 +41,7 @@ function Profile() {
     })();
 
     return () => axiosRequestRef.cancel();
-  }, []);
+  }, [username]);
 
   return (
     <Page title="My Posts" narrow={true}>
