@@ -17,6 +17,9 @@ function Chat() {
   const intialVal = null;
   const chatField = useRef(intialVal); //mutable | compo that are dependent won't re-render if chatField changes
 
+  const initalRefVal2 = null;
+  const chatLog = useRef(initalRefVal2);
+
   const initialLocalStateVal = {
     fieldValue: '',
     chatMessages: []
@@ -43,6 +46,12 @@ function Chat() {
       });
     });
   }, []);
+
+  // we wanna run a code everytime new message is added
+  useEffect(() => {
+    // like using document.querySelector(......).scrollTop
+    chatLog.current.scrollTop = chatLog.current.scrollHeight;
+  }, [localState.chatMessages]);
 
   const handleFieldChange = function (e) {
     const latestFieldVal = e.target.value;
@@ -77,7 +86,8 @@ function Chat() {
           <i className="fas fa-times-circle"></i>
         </span>
       </div>
-      <div id="chat" className="chat-log">
+      {/* this is the div that is going to have the scroll bar */}
+      <div ref={chatLog} id="chat" className="chat-log">
         {localState.chatMessages.map((msg, index) => {
           //we need to know which template to use, that is we need to know who sent the chat msg
 
