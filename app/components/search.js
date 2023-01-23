@@ -8,6 +8,9 @@ import axios from 'axios';
 // my contexts
 import GlobalStateUpdatorContext from '../contexts/state-updator-context';
 
+// my components
+import Post from './Post';
+
 function Search() {
   const globalStateUpdator = useContext(GlobalStateUpdatorContext);
 
@@ -132,16 +135,8 @@ function Search() {
                 </div>
                 {/* search result items below */}
                 {[
-                  localState.results.map((result, index) => {
-                    return (
-                      // onClick handler can be attached to Link and it has been used unmount the Search compo.
-                      <Link onClick={e => globalStateUpdator({ type: 'closeSearch' })} key={index} to={`/post/${result._id}`} className="list-group-item list-group-item-action">
-                        <img className="avatar-tiny" src={result.author.avatar} /> <strong>{result.title}</strong>{' '}
-                        <span className="text-muted small">
-                          by {result.author.username} on {new Date(result.createdDate).toLocaleDateString()}
-                        </span>
-                      </Link>
-                    );
+                  localState.results.map(post => {
+                    return <Post post={post} key={post._id} onClickHandlerValue={e => globalStateUpdator({ type: 'closeSearch' })} />;
                   })
                 ]}
               </div>

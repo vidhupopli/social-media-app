@@ -1,5 +1,4 @@
 import React, { useContext, useEffect } from 'react';
-import { Link } from 'react-router-dom';
 import { useImmer } from 'use-immer';
 import axios from 'axios';
 
@@ -11,6 +10,7 @@ import Page from './page';
 import HomeGuest from './home-guest';
 import HomeEmptyFeed from './home-empty-feed';
 import LoadingDots from './loading-dots';
+import Post from './Post';
 
 function Home() {
   const globalState = useContext(GlobalStateContext);
@@ -72,16 +72,9 @@ function Home() {
           <h2 className="text-center mb-4">Latest From Those You Follow</h2>
           <div className="list-group">
             {[
-              localState.feed.map((feedItem, index) => {
+              localState.feed.map((post, index) => {
                 // code here
-                return (
-                  <Link key={index} to={`/post/${feedItem._id}`} className="list-group-item list-group-item-action">
-                    <img className="avatar-tiny" src={feedItem.author.avatar} /> <strong>{feedItem.title}</strong>{' '}
-                    <span className="text-muted small">
-                      by {feedItem.author.username} on {new Date(feedItem.createdDate).toLocaleDateString()}
-                    </span>
-                  </Link>
-                );
+                return <Post post={post} key={post._id} />;
               })
             ]}
           </div>

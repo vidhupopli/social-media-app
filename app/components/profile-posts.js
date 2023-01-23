@@ -4,6 +4,7 @@ import axios from 'axios';
 
 // my components
 import LoadingDots from './loading-dots';
+import Post from './Post';
 
 function ProfilePosts() {
   const { username } = useParams();
@@ -37,10 +38,7 @@ function ProfilePosts() {
   return (
     <div className="list-group">
       {posts.map(postData => (
-        <Link to={`/post/${postData._id}`} className="list-group-item list-group-item-action" key={postData._id}>
-          <img className="avatar-tiny" src={postData.author.avatar} /> <strong>{postData.title}</strong>
-          <span className="text-muted small"> on {new Date(postData.createdDate).toLocaleDateString()} </span>
-        </Link>
+        <Post post={postData} noAuthor={true} />
       ))}
     </div>
   );
