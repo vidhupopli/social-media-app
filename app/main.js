@@ -27,6 +27,7 @@ import Profile from './components/profile';
 import EditPost from './components/edit-post';
 import PageNotFound from './components/page-not-found';
 import Search from './components/search';
+import Chat from './components/Chat';
 
 function Main() {
   const initalStateVal = {
@@ -100,6 +101,7 @@ function Main() {
             <Route path="/profile/:username*" element={<Profile />} />
             <Route path="*" element={<PageNotFound />} />
           </Routes>
+          <Chat />
           <Footer />
           {/* 330ms, bool val to determine when to render search, multiple css classes as per spec referenced using 'search-overlay' */}
           <CSSTransition timeout={330} in={globalState.isSearchOpen} classNames="search-overlay" unmountOnExit>
