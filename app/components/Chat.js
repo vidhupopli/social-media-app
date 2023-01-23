@@ -12,7 +12,8 @@ function Chat() {
   const chatField = useRef(intialVal); //mutable | compo that are dependent won't re-render if chatField changes
 
   const initialLocalStateVal = {
-    fieldValue: ''
+    fieldValue: '',
+    chatMessages: []
   };
   const [localState, setLocalState] = useImmer(initialLocalStateVal);
 
@@ -38,8 +39,13 @@ function Chat() {
 
   const handleSubmit = function (e) {
     e.preventDefault();
-    alert(localState.fieldValue);
+
+    // send message to chat server
+
+    // add the message to localState.chatMessage and clear out the input field value state
     setLocalState(curVal => {
+      curVal.chatMessages.push({ message: curVal.fieldValue, username: globalState.userCredentials.username, avatar: globalState.userCredentials.avatar });
+      // clear out the field value after the message has been added
       curVal.fieldValue = '';
     });
   };
@@ -53,26 +59,38 @@ function Chat() {
         </span>
       </div>
       <div id="chat" className="chat-log">
-        <div className="chat-self">
-          <div className="chat-message">
-            <div className="chat-message-inner">Hey, how are you?</div>
-          </div>
-          <img className="chat-avatar avatar-tiny" src="https://gravatar.com/avatar/b9408a09298632b5151200f3449434ef?s=128" />
-        </div>
+        {localState.chatMessages.map((msg, index) => {
+          //we need to know which template to use, that is we need to know who sent the chat msg
 
-        <div className="chat-other">
-          <a href="#">
-            <img className="avatar-tiny" src="https://gravatar.com/avatar/b9216295c1e3931655bae6574ac0e4c2?s=128" />
-          </a>
-          <div className="chat-message">
-            <div className="chat-message-inner">
+          // if we sent the msg
+          if (msg.username === globalState.userCredentials.username) {
+            return (
+              <div key={index} className="chat-self">
+                <div className="chat-message">
+                  <div className="chat-message-inner">{msg.message}</div>
+                </div>
+                <img className="chat-avatar avatar-tiny" src={msg.avatar} />
+              </div>
+            );
+          }
+
+          // if we someone else sent the msg
+          return (
+            <div className="chat-other">
               <a href="#">
-                <strong>barksalot:</strong>
+                <img className="avatar-tiny" src="https://gravatar.com/avatar/b9216295c1e3931655bae6574ac0e4c2?s=128" />
               </a>
-              Hey, I am good, how about you?
+              <div className="chat-message">
+                <div className="chat-message-inner">
+                  <a href="#">
+                    <strong>barksalot:</strong>
+                  </a>
+                  Hey, I am good, how about you?
+                </div>
+              </div>
             </div>
-          </div>
-        </div>
+          );
+        })}
       </div>
       <form onSubmit={handleSubmit} id="chatForm" className="chat-form border-top">
         <input ref={chatField} onChange={handleFieldChange} value={localState.fieldValue} type="text" className="chat-field" id="chatField" placeholder="Type a message…" autoComplete="off" />
