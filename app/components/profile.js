@@ -9,6 +9,7 @@ import GlobalStateContext from '../contexts/state-context';
 // my components
 import Page from './page';
 import ProfilePosts from './profile-posts';
+import ProfileFollowers from './profile-followers';
 
 function Profile() {
   const { username } = useParams();
@@ -160,7 +161,7 @@ function Profile() {
       {/* not used the BrowserRouter component as in the main.js. Also the NavLink gives flow to this Routes switching component. */}
       <Routes>
         <Route path="" element={<ProfilePosts />} />
-        <Route path="followers" element={<ProfilePosts />} />
+        <Route path="followers" element={<ProfileFollowers />} />
         <Route path="following" element={<ProfilePosts />} />
       </Routes>
     </Page>
