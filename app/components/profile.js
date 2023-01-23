@@ -10,6 +10,7 @@ import GlobalStateContext from '../contexts/state-context';
 import Page from './page';
 import ProfilePosts from './profile-posts';
 import ProfileFollowers from './profile-followers';
+import ProfileFollowing from './profile-following';
 
 function Profile() {
   const { username } = useParams();
@@ -162,7 +163,7 @@ function Profile() {
       <Routes>
         <Route path="" element={<ProfilePosts />} />
         <Route path="followers" element={<ProfileFollowers />} />
-        <Route path="following" element={<ProfilePosts />} />
+        <Route path="following" element={<ProfileFollowing />} />
       </Routes>
     </Page>
   );

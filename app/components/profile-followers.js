@@ -15,6 +15,7 @@ function ProfileFollowers() {
   useEffect(() => {
     const axiosRequestRef = axios.CancelToken.source();
 
+    // network request is made to obtain a profile's followers and stored in the state if the data has been recd.
     (async function () {
       try {
         const serverResponse = await axios.get(`/profile/${username}/followers`, { cancelToken: axiosRequestRef.token });
@@ -37,6 +38,7 @@ function ProfileFollowers() {
   return (
     <div className="list-group">
       {posts.map((follower, index) => (
+        // Flow is transferred to the BrowserRouter from main.js upon clicking
         <Link to={`/profile/${follower.username}`} className="list-group-item list-group-item-action" key={index}>
           <img className="avatar-tiny" src={follower.avatar} /> {follower.username}
         </Link>
