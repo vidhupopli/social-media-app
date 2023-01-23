@@ -37,6 +37,7 @@
     "react-markdown": "^8.0.4",
     "react-router-dom": "^6.6.1",
     "react-tooltip": "^5.4.0",
+    "react-transition-group": "^4.4.5",
     "use-immer": "^0.8.1"
   }
 }

@@ -2,6 +2,7 @@ import React, { useEffect } from 'react';
 import ReactDOM from 'react-dom/client';
 import { useImmerReducer } from 'use-immer';
 import { BrowserRouter, Routes, Route } from 'react-router-dom';
+import { CSSTransition } from 'react-transition-group';
 
 // setting up baseUrl to be used with axios
 import axios from 'axios';
@@ -98,9 +99,10 @@ function Main() {
             <Route path="*" element={<PageNotFound />} />
           </Routes>
           <Footer />
-          {globalState.isSearchOpen && <Search />}
-          {/* Ternary operator can also be used. Returning empty string or false does not make this JS expression evaluate to any JSX that will be rendered. This ternary operator had not worked in a different location. */}
-          {/* {globalState.isSearchOpen ? <Search /> : ''} */}
+          {/* 330ms, bool val to determine when to render search, multiple css classes as per spec referenced using 'search-overlay' */}
+          <CSSTransition timeout={330} in={globalState.isSearchOpen} classNames="search-overlay" unmountOnExit>
+            <Search />
+          </CSSTransition>
         </BrowserRouter>
       </StateUpdatorContext.Provider>
     </StateContext.Provider>

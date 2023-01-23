@@ -180,7 +180,6 @@ textarea.tall-textarea {
   margin: 0;
 }
 
-/* Search Overaly */
 .search-overlay {
   display: flex;
   flex-direction: column;
@@ -193,27 +192,38 @@ textarea.tall-textarea {
   background-color: rgba(215, 215, 215, 0.911);
 }
 
+/* ------------------------------------------ */
+/* various Search Overaly classes used by CSSTransition component  */
+/* ------------------------------------------ */
+
+/* <Search /> component is mounted with this class */
 .search-overlay-enter {
   opacity: 0;
   transform: scale(1.3);
 }
 
+/* Very shortly after (almost immediately) the search component has been mounted. */
 .search-overlay-enter-active {
   opacity: 1;
   transform: scale(1);
   transition: 0.33s visibility ease-in-out, 0.33s opacity ease-in-out, 0.33s transform ease-in-out;
 }
 
+/* when the x button is clicked to close the Search compoenent */
 .search-overlay-exit {
   opacity: 1;
   transform: scale(1);
 }
 
+/* Very shortly after (almost immediately) the x button has been clicked to close the component */
+/* This class stays for about 0.33s on the Search component, after this, the Search component is unmounted */
 .search-overlay-exit-active {
   opacity: 0;
   transform: scale(1.3);
   transition: 0.33s visibility ease-in-out, 0.33s opacity ease-in-out, 0.33s transform ease-in-out;
 }
+
+/* ------------------------------------------ */
 
 .search-overlay-icon {
   color: #007bff;
