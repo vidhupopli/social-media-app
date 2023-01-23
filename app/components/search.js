@@ -65,7 +65,9 @@ function Search() {
         const cancelToken = { cancelToken: axiosReqRef.token };
         const serverResponse = await axios.post(url, dataToSend, cancelToken);
 
-        console.log(serverResponse.data);
+        setLocalState(curVal => {
+          curVal.results = serverResponse.data;
+        });
       } catch (err) {
         console.log(err);
       }
@@ -103,21 +105,21 @@ function Search() {
           <div className="live-search-results live-search-results--visible">
             <div className="list-group shadow-sm">
               <div className="list-group-item active">
-                <strong>Search Results</strong> (3 items found)
+                <strong>Search Results</strong> ({localState.results.length} items found)
               </div>
-              {/* Serch result items below */}
-              <a href="#" className="list-group-item list-group-item-action">
-                <img className="avatar-tiny" src="https://gravatar.com/avatar/b9408a09298632b5151200f3449434ef?s=128" /> <strong>Example Post #1</strong>
-                <span className="text-muted small">by brad on 2/10/2020 </span>
-              </a>
-              <a href="#" className="list-group-item list-group-item-action">
-                <img className="avatar-tiny" src="https://gravatar.com/avatar/b9216295c1e3931655bae6574ac0e4c2?s=128" /> <strong>Example Post #2</strong>
-                <span className="text-muted small">by barksalot on 2/10/2020 </span>
-              </a>
-              <a href="#" className="list-group-item list-group-item-action">
-                <img className="avatar-tiny" src="https://gravatar.com/avatar/b9408a09298632b5151200f3449434ef?s=128" /> <strong>Example Post #3</strong>
-                <span className="text-muted small">by brad on 2/10/2020 </span>
-              </a>
+              {/* search result items below */}
+              {[
+                localState.results.map((result, index) => {
+                  return (
+                    <a key={index} href="#" className="list-group-item list-group-item-action">
+                      <img className="avatar-tiny" src="https://gravatar.com/avatar/b9408a09298632b5151200f3449434ef?s=128" /> <strong>{result.title}</strong>{' '}
+                      <span className="text-muted small">
+                        by {result.author.username} on {new Date(result.createdDate).toLocaleDateString()}
+                      </span>
+                    </a>
+                  );
+                })
+              ]}
             </div>
           </div>
         </div>
