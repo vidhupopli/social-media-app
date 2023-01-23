@@ -2,6 +2,7 @@
 import React, { useContext, useEffect } from 'react';
 // this is immer's variant of useState. Just like useImmerReducer is variant of useReducer.
 import { useImmer } from 'use-immer';
+import axios from 'axios';
 
 // my contexts
 import GlobalStateUpdatorContext from '../contexts/state-updator-context';
@@ -55,7 +56,23 @@ function Search() {
     // Do nothing if this is the first time the useEffect has been run. Which is what happens when the component is mounted.
     if (localState.requestCount === 0) return;
 
+    const axiosReqRef = axios.CancelToken.source();
     // Make network request:
+    (async function () {
+      try {
+        const url = '/search';
+        const dataToSend = { searchTerm: localState.searchTerm };
+        const cancelToken = { cancelToken: axiosReqRef.token };
+        const serverResponse = await axios.post(url, dataToSend, cancelToken);
+
+        console.log(serverResponse.data);
+      } catch (err) {
+        console.log(err);
+      }
+    })();
+
+    // return cleanup function
+    return () => axiosReqRef.cancel();
   }, [localState.requestCount]);
 
   const inputHandler = function (e) {
