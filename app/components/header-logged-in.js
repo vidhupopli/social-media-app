@@ -29,15 +29,15 @@ function HeaderLoggedIn() {
         <i className="fas fa-search"></i>
       </a>
       <Tooltip anchorId="search-button" />
+      {/* can be used to put a single space between two elements, no matter how much space characters are inside the quotes though. */}{' '}
       <span id="chat-button" data-tooltip-content="Chat" className="mr-2 header-chat-icon text-white">
         <i className="fas fa-comment"></i>
         <span className="chat-count-badge text-white"> </span>
       </span>
-      <Tooltip anchorId="chat-button" />
-      {/* Click on this below to give flow to router */}
+      <Tooltip anchorId="chat-button" /> {/* Click on this below to give flow to router */}
       <Link id="profile-button" data-tooltip-content="Profile" to={`/profile/${globalState.userCredentials.username}`} className="mr-2">
         <img className="small-header-avatar" src={globalState.userCredentials.avatar} />
-      </Link>
+      </Link>{' '}
       <Tooltip anchorId="profile-button" />
       <Link className="btn btn-sm btn-success mr-2" to="/create-post">
         Create Post
