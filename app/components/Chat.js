@@ -1,6 +1,10 @@
 import React, { useContext, useEffect, useRef } from 'react';
 import { useImmer } from 'use-immer'; //like useState
 
+import { io } from 'socket.io-client';
+// establish ongoing connection between browser and server
+const socket = io('http://localhost:8080');
+
 import GlobalStateContext from '../contexts/state-context';
 import GlobalStateUpdatorContext from '../contexts/state-updator-context';
 
@@ -17,8 +21,6 @@ function Chat() {
   };
   const [localState, setLocalState] = useImmer(initialLocalStateVal);
 
-  // console.log(globalState.isChatOpen);
-
   // Everytime isChatOpen property is set, this runs. Also runs on the first mounting of Chat.
   useEffect(() => {
     // do nothing if the chat is not supposed to be open.
@@ -28,6 +30,16 @@ function Chat() {
     // we're using a useRef ref instead of using document.querySelector(...).focus()
     chatField.current.focus();
   }, [globalState.isChatOpen]);
+
+  // listening for a particular type of data from server | runs the first time the compo is mounted
+  useEffect(() => {
+    // (typeOfEventServerBroadcastedToUsThatWeAReInterestedIn, functionThatRunsWhenServerSendsUsThisTypeOfData)
+    socket.on('chatFromServer', message => {
+      setLocalState(curVal => {
+        curVal.chatMessages.push(message);
+      });
+    });
+  }, []);
 
   const handleFieldChange = function (e) {
     const latestFieldVal = e.target.value;
@@ -40,11 +52,15 @@ function Chat() {
   const handleSubmit = function (e) {
     e.preventDefault();
 
-    // send message to chat server
+    // send message to chat server (axios is not right tool for the job)
+    // (eventTypeName that the server is expecting, dataToSend})
+    // after server receives this data and accepts it, it then broadcasts it to all others with open socket connection to the server listening for a particular type of data
+    socket.emit('chatFromBrowser', { message: localState.fieldValue, token: globalState.userCredentials.token });
 
     // add the message to localState.chatMessage and clear out the input field value state
     setLocalState(curVal => {
       curVal.chatMessages.push({ message: curVal.fieldValue, username: globalState.userCredentials.username, avatar: globalState.userCredentials.avatar });
+
       // clear out the field value after the message has been added
       curVal.fieldValue = '';
     });
@@ -76,17 +92,12 @@ function Chat() {
 
           // if we someone else sent the msg
           return (
-            <div className="chat-other">
+            <div key={index} className="chat-other">
               <a href="#">
-                <img className="avatar-tiny" src="https://gravatar.com/avatar/b9216295c1e3931655bae6574ac0e4c2?s=128" />
+                <img className="avatar-tiny" src={msg.avatar} />
               </a>
               <div className="chat-message">
-                <div className="chat-message-inner">
-                  <a href="#">
-                    <strong>barksalot:</strong>
-                  </a>
-                  Hey, I am good, how about you?
-                </div>
+                <div className="chat-message-inner">{msg.message}</div>
               </div>
             </div>
           );
