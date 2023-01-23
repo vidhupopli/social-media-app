@@ -1,4 +1,5 @@
 import React, { useContext, useEffect, useRef } from 'react';
+import { useImmer } from 'use-immer'; //like useState
 
 import GlobalStateContext from '../contexts/state-context';
 import GlobalStateUpdatorContext from '../contexts/state-updator-context';
@@ -9,6 +10,11 @@ function Chat() {
 
   const intialVal = null;
   const chatField = useRef(intialVal); //mutable | compo that are dependent won't re-render if chatField changes
+
+  const initialLocalStateVal = {
+    fieldValue: ''
+  };
+  const [localState, setLocalState] = useImmer(initialLocalStateVal);
 
   // console.log(globalState.isChatOpen);
 
@@ -21,6 +27,14 @@ function Chat() {
     // we're using a useRef ref instead of using document.querySelector(...).focus()
     chatField.current.focus();
   }, [globalState.isChatOpen]);
+
+  const handleFieldChange = function (e) {
+    const latestFieldVal = e.targe.value;
+
+    setLocalState(curVal => {
+      curVal.fieldValue = latestFieldVal;
+    });
+  };
 
   return (
     <div id="chat-wrapper" className={'chat-wrapper shadow border-top border-left border-right ' + (globalState.isChatOpen ? 'chat-wrapper--is-visible' : '')}>
@@ -53,7 +67,7 @@ function Chat() {
         </div>
       </div>
       <form id="chatForm" className="chat-form border-top">
-        <input ref={chatField} type="text" className="chat-field" id="chatField" placeholder="Type a message…" autoComplete="off" />
+        <input ref={chatField} onChange={handleFieldChange} type="text" className="chat-field" id="chatField" placeholder="Type a message…" autoComplete="off" />
       </form>
     </div>
   );
