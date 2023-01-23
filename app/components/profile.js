@@ -35,25 +35,25 @@ function Profile() {
   // guideline: do not put the async function outside of the useEffect
 
   // obtain profile data | running arrowFn when this compo is mounted, and also when the url id changes. The latter helps solve a bug.
+  // this useEffect also runs when the globalState changes. This solves the bug of making network request before the globalState has been loaded into from the localstorage.
   useEffect(() => {
     const axiosRequestRef = axios.CancelToken.source();
 
     (async function () {
       try {
-        const loggedInUserData = JSON.parse(localStorage.getItem('persistedUserData'));
-
-        const serverResponse = await axios.post(`/profile/${username}`, { token: loggedInUserData.token }, { cancelToken: axiosRequestRef.token });
+        const serverResponse = await axios.post(`/profile/${username}`, { token: globalState?.userCredentials?.token }, { cancelToken: axiosRequestRef.token });
 
         setLocalState(curVal => {
           curVal.profileData = serverResponse.data;
         });
       } catch (err) {
-        console.log(err);
+        // console.log(err);
       }
     })();
 
+    // when the previous request is cancelled, essentially the pending promise is marked as rejected and thus it leads to an error which is then caught and logged.
     return () => axiosRequestRef.cancel();
-  }, [username]);
+  }, [username, globalState]);
 
   // to make the follow network request | arrowFn runs when the compo is mounted and when the respective localstate property changes
   useEffect(() => {
