@@ -39,16 +39,27 @@ function Search() {
 
   // For signalling network request after a delay | Runs when compo is mounted and everytime the localState's particular property changes
   useEffect(() => {
-    // everytime the inputField has been changed, this timeout is being created.
-    const delay = setTimeout(() => {
-      setLocalState(curStateVal => {
-        // to signal running of the next useEffect
-        curStateVal.requestCount++;
+    // As long as the searchTerm is not blank this evaluates to a truthy value. We don't wanna signal network request if the search field is blank.
+    if (localState.searchTerm.trim()) {
+      // Updating local state property that leads to rendering of a revolving circular loader.
+      setLocalState(curVal => {
+        curVal.show = 'loading';
       });
-    }, 3000);
 
-    // Note: returning a cleanup function. Cleanup function doesn't just run when the component unmounts, but also, cleanup function of the first instance of useEffect runs when the next useEffect runs. Only after the cleanup of the previous useEffect has run, the next useEffect runs.
-    return () => clearTimeout(delay);
+      const delay = setTimeout(() => {
+        setLocalState(curStateVal => {
+          // to signal running of the next useEffect
+          curStateVal.requestCount++;
+        });
+      }, 3000);
+
+      // Note: returning a cleanup function. Cleanup function doesn't just run when the component unmounts, but also, cleanup function of the first instance of useEffect runs when the next useEffect runs. Only after the cleanup of the previous useEffect has run, the next useEffect runs.
+      return () => clearTimeout(delay);
+    } else {
+      setLocalState(curVal => {
+        curVal.show = 'neither';
+      });
+    }
   }, [localState.searchTerm]);
 
   // For making network request | Runs the first time compo is mounted and everytime property of localState changes - which is what happens when the input field has been changed and another useEffect sends the signal to make the network req.
@@ -64,6 +75,11 @@ function Search() {
         const dataToSend = { searchTerm: localState.searchTerm };
         const cancelToken = { cancelToken: axiosReqRef.token };
         const serverResponse = await axios.post(url, dataToSend, cancelToken);
+
+        // Results are ready to be diplayed. So therefore update the state property that leads to rendering of a JSX container.
+        setLocalState(curVal => {
+          curVal.show = 'results';
+        });
 
         setLocalState(curVal => {
           curVal.results = serverResponse.data;
@@ -101,8 +117,12 @@ function Search() {
       </div>
 
       <div className="search-overlay-bottom">
+        <br />
+        {/* Revolving circular loader that's visible depending on a state */}
+        <div className={'circle-loader ' + (localState.show === 'loading' ? 'circle-loader--visible' : '')}></div>
         <div className="container container--narrow py-3">
-          <div className="live-search-results live-search-results--visible">
+          {/* container which hosts the search lists: displayed as per a state value */}
+          <div className={'live-search-results ' + (localState.show === 'results' ? 'live-search-results--visible' : '')}>
             <div className="list-group shadow-sm">
               <div className="list-group-item active">
                 <strong>Search Results</strong> ({localState.results.length} items found)
