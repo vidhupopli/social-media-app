@@ -1,11 +1,21 @@
 // when component abstracting, this line is important
 import React, { useContext, useEffect } from 'react';
+// this is immer's variant of useState. Just like useImmerReducer is variant of useReducer.
+import { useImmer } from 'use-immer';
 
 // my contexts
 import GlobalStateUpdatorContext from '../contexts/state-updator-context';
 
 function Search() {
   const globalStateUpdator = useContext(GlobalStateUpdatorContext);
+
+  const initialLocalStateValue = {
+    searchTerm: '',
+    results: [],
+    show: 'neither',
+    requestCount: 0
+  };
+  const [localState, setLocalState] = useImmer(initialLocalStateValue);
 
   const searchKeyPressHandler = function (e) {
     // **this function by default runs everytime a key is pressed** //
@@ -26,6 +36,19 @@ function Search() {
     return () => document.removeEventListener('keyup', searchKeyPressHandler);
   }, []);
 
+  // Runs everytime the localState's particular property changes
+  useEffect(() => {
+    console.log(localState.searchTerm);
+  }, [localState.searchTerm]);
+
+  const inputHandler = function (e) {
+    // updating local state
+    const inputValue = e.target.value;
+    setLocalState(curStateVal => {
+      curStateVal.searchTerm = inputValue;
+    });
+  };
+
   return (
     <div className="search-overlay">
       <div className="search-overlay-top shadow-sm">
@@ -33,7 +56,7 @@ function Search() {
           <label htmlFor="live-search-field" className="search-overlay-icon">
             <i className="fas fa-search"></i>
           </label>
-          <input autofocus type="text" autocomplete="off" id="live-search-field" className="live-search-field" placeholder="What are you interested in?" />
+          <input onChange={inputHandler} autoFocus type="text" autoComplete="off" id="live-search-field" className="live-search-field" placeholder="What are you interested in?" />
           {/* Close button */}
           <span onClick={e => globalStateUpdator({ type: 'closeSearch' })} className="close-live-search">
             <i className="fas fa-times-circle"></i>
@@ -48,6 +71,7 @@ function Search() {
               <div className="list-group-item active">
                 <strong>Search Results</strong> (3 items found)
               </div>
+              {/* Serch result items below */}
               <a href="#" className="list-group-item list-group-item-action">
                 <img className="avatar-tiny" src="https://gravatar.com/avatar/b9408a09298632b5151200f3449434ef?s=128" /> <strong>Example Post #1</strong>
                 <span className="text-muted small">by brad on 2/10/2020 </span>
