@@ -38,7 +38,13 @@ function Search() {
 
   // Runs everytime the localState's particular property changes
   useEffect(() => {
-    console.log(localState.searchTerm);
+    // everytime the inputField has been changed, this timeout is being created.
+    const delay = setTimeout(() => {
+      console.log(localState.searchTerm);
+    }, 3000);
+
+    // Note: returning a cleanup function. Cleanup function doesn't just run when the component unmounts, but also, cleanup function of the first instance of useEffect runs when the next useEffect runs. Only after the cleanup of the previous useEffect has run, the next useEffect runs.
+    return () => clearTimeout(delay);
   }, [localState.searchTerm]);
 
   const inputHandler = function (e) {
