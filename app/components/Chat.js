@@ -1,8 +1,14 @@
-import React from 'react';
+import React, { useContext } from 'react';
+
+import GlobalStateContext from '../contexts/state-context';
 
 function Chat() {
+  const globalState = useContext(GlobalStateContext);
+  // DEF3
+  console.log(globalState.isChatOpen);
+
   return (
-    <div id="chat-wrapper" className="chat-wrapper chat-wrapper--is-visible shadow border-top border-left border-right">
+    <div id="chat-wrapper" className={'chat-wrapper shadow border-top border-left border-right ' + (globalState.isChatOpen ? 'chat-wrapper--is-visible' : '')}>
       <div className="chat-title-bar bg-primary">
         Chat
         <span className="chat-title-bar-close">

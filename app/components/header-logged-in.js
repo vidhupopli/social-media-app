@@ -30,7 +30,7 @@ function HeaderLoggedIn() {
       </a>
       <Tooltip anchorId="search-button" />
       {/* can be used to put a single space between two elements, no matter how much space characters are inside the quotes though. */}{' '}
-      <span id="chat-button" data-tooltip-content="Chat" className="mr-2 header-chat-icon text-white">
+      <span onClick={e => globalStateUpdator({ type: 'toggleChat' })} id="chat-button" data-tooltip-content="Chat" className="mr-2 header-chat-icon text-white">
         <i className="fas fa-comment"></i>
         <span className="chat-count-badge text-white"> </span>
       </span>

@@ -33,7 +33,8 @@ function Main() {
   const initalStateVal = {
     userCredentials: null,
     flashMessages: [],
-    isSearchOpen: false
+    isSearchOpen: false,
+    isChatOpen: false
   };
 
   const customUpdateStateFn = function (currMutableStateVal, phActionObj) {
@@ -53,6 +54,12 @@ function Main() {
         break;
       case 'closeSearch':
         currMutableStateVal.isSearchOpen = false;
+        break;
+      case 'toggleChat':
+        currMutableStateVal.isChatOpen = !currMutableStateVal.isChatOpen;
+        break;
+      case 'closeChat':
+        currMutableStateVal.isChatOpen = false;
         break;
       default:
         throw new Error('Invalid action type');
