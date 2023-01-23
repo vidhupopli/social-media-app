@@ -29,10 +29,18 @@ function Chat() {
   }, [globalState.isChatOpen]);
 
   const handleFieldChange = function (e) {
-    const latestFieldVal = e.targe.value;
+    const latestFieldVal = e.target.value;
 
     setLocalState(curVal => {
       curVal.fieldValue = latestFieldVal;
+    });
+  };
+
+  const handleSubmit = function (e) {
+    e.preventDefault();
+    alert(localState.fieldValue);
+    setLocalState(curVal => {
+      curVal.fieldValue = '';
     });
   };
 
@@ -66,8 +74,8 @@ function Chat() {
           </div>
         </div>
       </div>
-      <form id="chatForm" className="chat-form border-top">
-        <input ref={chatField} onChange={handleFieldChange} type="text" className="chat-field" id="chatField" placeholder="Type a message…" autoComplete="off" />
+      <form onSubmit={handleSubmit} id="chatForm" className="chat-form border-top">
+        <input ref={chatField} onChange={handleFieldChange} value={localState.fieldValue} type="text" className="chat-field" id="chatField" placeholder="Type a message…" autoComplete="off" />
       </form>
     </div>
   );
