@@ -26,7 +26,7 @@ function Search() {
     }
   };
 
-  // Runs the everytime the component is mounted.
+  // For attaching keyboard event listner to Document obj | Runs the everytime the component is mounted.
   useEffect(() => {
     // New event listener is added if <Search /> is mounted.
     document.addEventListener('keyup', searchKeyPressHandler);
@@ -36,16 +36,27 @@ function Search() {
     return () => document.removeEventListener('keyup', searchKeyPressHandler);
   }, []);
 
-  // Runs everytime the localState's particular property changes
+  // For signalling network request after a delay | Runs when compo is mounted and everytime the localState's particular property changes
   useEffect(() => {
     // everytime the inputField has been changed, this timeout is being created.
     const delay = setTimeout(() => {
-      console.log(localState.searchTerm);
+      setLocalState(curStateVal => {
+        // to signal running of the next useEffect
+        curStateVal.requestCount++;
+      });
     }, 3000);
 
     // Note: returning a cleanup function. Cleanup function doesn't just run when the component unmounts, but also, cleanup function of the first instance of useEffect runs when the next useEffect runs. Only after the cleanup of the previous useEffect has run, the next useEffect runs.
     return () => clearTimeout(delay);
   }, [localState.searchTerm]);
+
+  // For making network request | Runs the first time compo is mounted and everytime property of localState changes - which is what happens when the input field has been changed and another useEffect sends the signal to make the network req.
+  useEffect(() => {
+    // Do nothing if this is the first time the useEffect has been run. Which is what happens when the component is mounted.
+    if (localState.requestCount === 0) return;
+
+    // Make network request:
+  }, [localState.requestCount]);
 
   const inputHandler = function (e) {
     // updating local state
