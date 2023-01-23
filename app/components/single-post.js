@@ -22,7 +22,7 @@ function SinglePost() {
   const [singlePostData, setSinglePostData] = useState(null);
   const [postExists, setPostExists] = useState(true);
 
-  // retrieve data
+  // retrieve data when the single post component is first mounted AS WELL AS when a particular variable (id) changes
   useEffect(() => {
     const axiosRequestRef = axios.CancelToken.source();
 
@@ -42,7 +42,7 @@ function SinglePost() {
     })();
 
     return () => axiosRequestRef.cancel();
-  }, []);
+  }, [id]);
 
   // if the server sent no data intimating non-existence of post
   if (!postExists) {

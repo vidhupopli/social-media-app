@@ -2,6 +2,7 @@
 import React, { useContext, useEffect } from 'react';
 // this is immer's variant of useState. Just like useImmerReducer is variant of useReducer.
 import { useImmer } from 'use-immer';
+import { Link } from 'react-router-dom';
 import axios from 'axios';
 
 // my contexts
@@ -131,12 +132,13 @@ function Search() {
               {[
                 localState.results.map((result, index) => {
                   return (
-                    <a key={index} href="#" className="list-group-item list-group-item-action">
-                      <img className="avatar-tiny" src="https://gravatar.com/avatar/b9408a09298632b5151200f3449434ef?s=128" /> <strong>{result.title}</strong>{' '}
+                    // onClick handler can be attached to Link and it has been used unmount the Search compo.
+                    <Link onClick={e => globalStateUpdator({ type: 'closeSearch' })} key={index} to={`/post/${result._id}`} className="list-group-item list-group-item-action">
+                      <img className="avatar-tiny" src={result.author.avatar} /> <strong>{result.title}</strong>{' '}
                       <span className="text-muted small">
                         by {result.author.username} on {new Date(result.createdDate).toLocaleDateString()}
                       </span>
-                    </a>
+                    </Link>
                   );
                 })
               ]}
