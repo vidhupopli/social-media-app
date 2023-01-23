@@ -124,25 +124,30 @@ function Search() {
         <div className="container container--narrow py-3">
           {/* container which hosts the search lists: displayed as per a state value */}
           <div className={'live-search-results ' + (localState.show === 'results' ? 'live-search-results--visible' : '')}>
-            <div className="list-group shadow-sm">
-              <div className="list-group-item active">
-                <strong>Search Results</strong> ({localState.results.length} {localState.results.length > 1 ? 'items' : 'item'} found)
+            {/* if search results exist display this container */}
+            {Boolean(localState.results.length) && (
+              <div className="list-group shadow-sm">
+                <div className="list-group-item active">
+                  <strong>Search Results</strong> ({localState.results.length} {localState.results.length > 1 ? 'items' : 'item'} found)
+                </div>
+                {/* search result items below */}
+                {[
+                  localState.results.map((result, index) => {
+                    return (
+                      // onClick handler can be attached to Link and it has been used unmount the Search compo.
+                      <Link onClick={e => globalStateUpdator({ type: 'closeSearch' })} key={index} to={`/post/${result._id}`} className="list-group-item list-group-item-action">
+                        <img className="avatar-tiny" src={result.author.avatar} /> <strong>{result.title}</strong>{' '}
+                        <span className="text-muted small">
+                          by {result.author.username} on {new Date(result.createdDate).toLocaleDateString()}
+                        </span>
+                      </Link>
+                    );
+                  })
+                ]}
               </div>
-              {/* search result items below */}
-              {[
-                localState.results.map((result, index) => {
-                  return (
-                    // onClick handler can be attached to Link and it has been used unmount the Search compo.
-                    <Link onClick={e => globalStateUpdator({ type: 'closeSearch' })} key={index} to={`/post/${result._id}`} className="list-group-item list-group-item-action">
-                      <img className="avatar-tiny" src={result.author.avatar} /> <strong>{result.title}</strong>{' '}
-                      <span className="text-muted small">
-                        by {result.author.username} on {new Date(result.createdDate).toLocaleDateString()}
-                      </span>
-                    </Link>
-                  );
-                })
-              ]}
-            </div>
+            )}
+            {/* if there are zero results */}
+            {!Boolean(localState.results.length) && <p className="alert alert-danger text-center shadow-sm">No search results found</p>}
           </div>
         </div>
       </div>
