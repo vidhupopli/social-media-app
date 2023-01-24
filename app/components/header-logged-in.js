@@ -14,6 +14,7 @@ function HeaderLoggedIn() {
 
   const userLogoutHandler = e => {
     globalStateUpdator({ type: 'logout' });
+    globalStateUpdator({ type: 'addFlashMessage', newMessage: 'you have logged out' });
     giveFlowToRouter('/');
   };
 

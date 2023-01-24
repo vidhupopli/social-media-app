@@ -2,10 +2,10 @@ import React, { useState, useContext } from 'react';
 import axios from 'axios';
 
 // my contexts
-import StateUpdatorContext from '../contexts/state-updator-context';
+import GlobalStateUpdatorContext from '../contexts/state-updator-context';
 
 function HeaderLoggedOut() {
-  const retrievedWrapperUpdateStateFn = useContext(StateUpdatorContext);
+  const globalStateUpdator = useContext(GlobalStateUpdatorContext);
 
   // states for input fields
   const [username, setUsername] = useState('');
@@ -16,11 +16,13 @@ function HeaderLoggedOut() {
     try {
       const serverResponse = await axios.post('/login', { username, password });
 
-      // if login unsuccessful alert and don't proceed further
-      if (!serverResponse.data) return alert('X -> failed login');
+      // if login unsuccessful, display message and don't proceed further
+      if (!serverResponse.data) return globalStateUpdator({ type: 'addFlashMessage', newMessage: 'failed to login' });
 
       // store obtained user data in state
-      retrievedWrapperUpdateStateFn({ type: 'login', data: serverResponse.data });
+      globalStateUpdator({ type: 'login', data: serverResponse.data });
+      // display successful message by updating msg state portion
+      globalStateUpdator({ type: 'addFlashMessage', newMessage: 'logged in successfully' });
     } catch (err) {
       console.log(err);
     }
