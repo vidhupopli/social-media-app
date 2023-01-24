@@ -1,5 +1,6 @@
 import React from 'react';
 import { useImmerReducer } from 'use-immer';
+import { CSSTransition } from 'react-transition-group';
 
 function HomeGuest() {
   const _initialLocalState = {
@@ -26,9 +27,25 @@ function HomeGuest() {
   };
   const _localStateUpdator = function (curLocalState, actionObj) {
     switch (actionObj.type) {
+      // runs immediately after something is typed into username field
       case 'usernameImmediately':
+        // Storing fiel value into localState
         curLocalState.username.hasErrors = false; //assume there is no error when username is typed
         curLocalState.username.value = actionObj.value;
+
+        // Validation of total character length
+        if (curLocalState.username.value.length > 10) {
+          curLocalState.username.hasErrors = true;
+          curLocalState.username.message = 'username cannot exceed 10 chars';
+        }
+
+        // Validation of allowed characters
+        const usernameNotEmpty = curLocalState.username.value;
+        const usernameNotWithInvalidChars = !/^([a-zA-Z0-9]+)$/.test(curLocalState.username.value);
+        if (usernameNotEmpty && usernameNotWithInvalidChars) {
+          curLocalState.username.hasErrors = true;
+          curLocalState.username.message = 'username can only contain letters and nums';
+        }
         break;
       case 'usernameAfterDelay':
         break;
@@ -73,6 +90,10 @@ function HomeGuest() {
               <small>Username</small>
             </label>
             <input onChange={e => localStateUpdator({ type: 'usernameImmediately', value: e.target.value })} value={localState.username.value} id="username-register" name="username" className="form-control" type="text" placeholder="Pick a username" autoComplete="off" />
+            {/* in={booleanValue} which determines when the div would exist, timeout=miliseconds, classNames=as per spec, */}
+            <CSSTransition in={localState.username.hasErrors} timeout={330} classNames="liveValidateMessage" unmountOnExit>
+              <div className="alert alert-danger small liveValidateMessage">{localState.username.message}</div>
+            </CSSTransition>
           </div>
           <div className="form-group">
             <label htmlFor="email-register" className="text-muted mb-1">
