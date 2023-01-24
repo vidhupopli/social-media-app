@@ -1,9 +1,14 @@
-import React, { useEffect } from 'react';
+import React, { useEffect, useContext } from 'react';
 import { useImmerReducer } from 'use-immer';
 import { CSSTransition } from 'react-transition-group';
 import axios from 'axios';
 
+// My contexts
+import GlobalStateUpdatorContext from '../contexts/state-updator-context';
+
 function HomeGuest() {
+  const globalStateUpdator = useContext(GlobalStateUpdatorContext);
+
   const _initialLocalState = {
     username: {
       value: '',
@@ -32,7 +37,12 @@ function HomeGuest() {
       case 'usernameImmediately':
         // Storing fiel value into localState
         curLocalState.username.hasErrors = false; //assume there is no error when username is typed
+
+        // // only if new value has been passed, then update the state otherwise validate the currently existing username afterwards.
+        // const newUsernameValPassedToActionObj = actionObj.value !== undefined;
+        // if (newUsernameValPassedToActionObj) {
         curLocalState.username.value = actionObj.value;
+        // }
 
         // Validation of total character length
         if (curLocalState.username.value.length > 10) {
@@ -58,8 +68,9 @@ function HomeGuest() {
         }
 
         // validate unique username in the database by triggering to make axios request
+        const makeReqToCheckUniqueness = !Boolean(actionObj.noRequest); //if noRequest is undefined then it is converted into false which is inverted into true. Which is what is needed to make the if clause run. Otherwise, if noRequest is true, then it is converted into true again, which is then inverted into false which is what prevents if clause from running.
         const noExistingErrors = !curLocalState.username.hasErrors;
-        if (noExistingErrors) curLocalState.username.checkCount++;
+        if (noExistingErrors && makeReqToCheckUniqueness) curLocalState.username.checkCount++;
         break;
       //--code to run after network req for checking the uniqueness of the username has been made and server has responded--
       case 'usernameUniqueResults':
@@ -88,11 +99,13 @@ function HomeGuest() {
 
         // validating uniqueness of the email as per database records, by signalling making of a network request
         const noExistingEmailErrors = !curLocalState.email.hasErrors;
-        if (noExistingEmailErrors) {
-          curLocalState.email.checkCount++; //this is what signals a useEffect that's watching to make a network request
+        const makeReqToCheckEmailUniqueness = !Boolean(actionObj.noRequest);
+        if (noExistingEmailErrors && makeReqToCheckEmailUniqueness) {
+          curLocalState.email.checkCount++; //signals a useEffect that's watching to make a network request
         }
         break;
       case 'emailUniqueResults':
+        const emailAlreadyExists = actionObj.value;
         if (emailAlreadyExists) {
           curLocalState.email.hasErrors = true;
           curLocalState.email.isUnique = false;
@@ -103,7 +116,11 @@ function HomeGuest() {
         break;
       case 'passwordImmediately':
         curLocalState.password.hasErrors = false;
+
+        // const newPasswordValPassedToActionObj = actionObj.value !== undefined;
+        // if (newPasswordValPassedToActionObj) {
         curLocalState.password.value = actionObj.value;
+        // }
 
         // validate max password length
         const passwordExceeds15Chars = curLocalState.password.value.length > 15;
@@ -121,6 +138,15 @@ function HomeGuest() {
         }
         break;
       case 'submitForm':
+        // signal to useEffect that we wanna make a network request to signup a new user
+        const noUsernameErrorsExist = !curLocalState.username.hasErrors;
+        const noEmailErrorsExist = !curLocalState.email.hasErrors;
+        const noPasswordErrorsExist = !curLocalState.password.hasErrors;
+        const usernameIsUnique = curLocalState.username.isUnique;
+        const emailIsUnique = curLocalState.email.isUnique;
+        if (noUsernameErrorsExist && usernameIsUnique && noEmailErrorsExist && emailIsUnique && noPasswordErrorsExist) {
+          curLocalState.submitCount++;
+        }
         break;
       default:
         throw new Error('Invalid type specified');
@@ -224,8 +250,51 @@ function HomeGuest() {
   }, [localState.password.value]);
   //----------------------------------------------
 
+  //-----------------------------------------------
+  // useEffects for submitting the form upon receving signal
+  //-----------------------------------------------
+  useEffect(() => {
+    // do nothing the first time this useEffect runs
+    const dontSendSignupRequest = localState.submitCount === 0;
+    if (dontSendSignupRequest) return;
+
+    // Make network request to signup user:
+    const axiosReqRef = axios.CancelToken.source();
+    (async function () {
+      try {
+        const url = '/register';
+        const dataToSend = { username: localState.username.value, email: localState.email.value, password: localState.password.value };
+        const cancelToken = { cancelToken: axiosReqRef.token };
+        const serverResponse = await axios.post(url, dataToSend, cancelToken); //server is going to respond with a boolean data prop
+
+        console.log(serverResponse.data);
+
+        // Automaticlly log the user in by just updating the userCredentials state | this line runs only if there is a successful registeration of the user
+        globalStateUpdator({ type: 'login', data: serverResponse.data });
+        globalStateUpdator({ type: 'addFlashMessage', newMessage: 'welcome to your new account' });
+      } catch (err) {
+        console.log(err);
+      }
+    })();
+
+    // return cleanup function
+    return () => axiosReqRef.cancel();
+  }, [localState.submitCount]);
+  //-----------------------------------------------
+
   const handleSubmit = function (e) {
     e.preventDefault();
+
+    // run all the validation rules before making network req to submit form
+    localStateUpdator({ type: 'usernameImmediately', value: localState.username.value });
+    localStateUpdator({ type: 'usernameAfterDelay', noRequest: true }); //dont wanna make network req to check username uniqueness before submitting form
+    localStateUpdator({ type: 'emailImmediately', value: localState.email.value });
+    localStateUpdator({ type: 'emailAfterDelay', noRequest: true }); // dont wanna make network req to check email uniqueness before submitting form
+    localStateUpdator({ type: 'passwordImmediately', value: localState.password.value });
+    localStateUpdator({ type: 'passwordAfterDelay' });
+
+    //signal making of the network request
+    localStateUpdator({ type: 'submitForm' });
   };
 
   return (
