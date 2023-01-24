@@ -1,6 +1,7 @@
 import React, { useEffect } from 'react';
 import { useImmerReducer } from 'use-immer';
 import { CSSTransition } from 'react-transition-group';
+import axios from 'axios';
 
 function HomeGuest() {
   const _initialLocalState = {
@@ -27,7 +28,7 @@ function HomeGuest() {
   };
   const _localStateUpdator = function (curLocalState, actionObj) {
     switch (actionObj.type) {
-      // runs immediately after something is typed into username field
+      // --runs immediately after something is typed into username field--
       case 'usernameImmediately':
         // Storing fiel value into localState
         curLocalState.username.hasErrors = false; //assume there is no error when username is typed
@@ -47,15 +48,29 @@ function HomeGuest() {
           curLocalState.username.message = 'username can only contain letters and nums';
         }
         break;
-      // code to run after a while username field changes
+      // --code to run after a while username field changes--
       case 'usernameAfterDelay':
+        // validate minimum username length
         const usernameLessThan3Chars = curLocalState.username.value.length < 3;
         if (usernameLessThan3Chars) {
           curLocalState.username.hasErrors = true;
           curLocalState.username.message = 'username must have more than 3 chars';
         }
+
+        // validate unique username in the database by triggering to make axios request
+        const noExistingErrors = !curLocalState.username.hasErrors;
+        if (noExistingErrors) curLocalState.username.checkCount++;
         break;
+      //--code to run after network req for checking the uniqueness of the username has been made and server has responded--
       case 'usernameUniqueResults':
+        const usernameAlreadyExists = actionObj.value;
+        if (usernameAlreadyExists) {
+          curLocalState.username.hasErrors = true;
+          curLocalState.username.isUnique = false;
+          curLocalState.username.message = 'username already exists';
+        } else {
+          curLocalState.username.isUnique = true;
+        }
         break;
       case 'emailImmediately':
         curLocalState.email.hasErrors = false;
@@ -90,6 +105,29 @@ function HomeGuest() {
     return () => clearTimeout(delayTimeoutRef);
   }, [localState.username.value]);
 
+  // upon changing of username field (after a bit of delay), make network request to check if the username already exists | runs when HomeGuest is first mounted and when localState.username.checkCount changes.
+  useEffect(() => {
+    // Do nothing if this is the first time the useEffect has been run.
+    if (!localState.username.checkCount) return;
+
+    const axiosReqRef = axios.CancelToken.source();
+    // Make network request:
+    (async function () {
+      try {
+        const url = '/doesUsernameExist';
+        const dataToSend = { username: localState.username.value };
+        const cancelToken = { cancelToken: axiosReqRef.token };
+        const serverResponse = await axios.post(url, dataToSend, cancelToken); //server is going to respond with a boolean data prop
+
+        localStateUpdator({ type: 'usernameUniqueResults', value: serverResponse.data });
+      } catch (err) {
+        console.log(err);
+      }
+    })();
+
+    // return cleanup function
+    return () => axiosReqRef.cancel();
+  }, [localState.username.checkCount]);
   const handleSubmit = function (e) {
     e.preventDefault();
   };
