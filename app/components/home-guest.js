@@ -75,16 +75,50 @@ function HomeGuest() {
       case 'emailImmediately':
         curLocalState.email.hasErrors = false;
         curLocalState.email.value = actionObj.value;
+
+        // no validation needs to happen immediately because no one can enter a valid email immediately.
         break;
       case 'emailAfterDelay':
+        // validing email formatting
+        const invalidEmail = !/^\S+@\S+$/.test(curLocalState.email.value);
+        if (invalidEmail) {
+          curLocalState.email.hasErrors = true;
+          curLocalState.email.message = 'Invalid email';
+        }
+
+        // validating uniqueness of the email as per database records, by signalling making of a network request
+        const noExistingEmailErrors = !curLocalState.email.hasErrors;
+        if (noExistingEmailErrors) {
+          curLocalState.email.checkCount++; //this is what signals a useEffect that's watching to make a network request
+        }
         break;
       case 'emailUniqueResults':
+        if (emailAlreadyExists) {
+          curLocalState.email.hasErrors = true;
+          curLocalState.email.isUnique = false;
+          curLocalState.email.message = 'email already exists';
+        } else {
+          curLocalState.email.isUnique = true;
+        }
         break;
       case 'passwordImmediately':
         curLocalState.password.hasErrors = false;
         curLocalState.password.value = actionObj.value;
+
+        // validate max password length
+        const passwordExceeds15Chars = curLocalState.password.value.length > 15;
+        if (passwordExceeds15Chars) {
+          curLocalState.password.hasErrors = true;
+          curLocalState.password.message = 'Password cannot exceed 12 chars';
+        }
         break;
       case 'passwordAfterDelay':
+        // validate min password length after a bit of delay
+        const passwordNotAtleast12Chars = curLocalState.password.value.length < 12;
+        if (passwordNotAtleast12Chars) {
+          curLocalState.password.hasErrors = true;
+          curLocalState.password.message = 'Password must have at least 12 chars';
+        }
         break;
       case 'submitForm':
         break;
@@ -94,6 +128,9 @@ function HomeGuest() {
   };
   const [localState, localStateUpdator] = useImmerReducer(_localStateUpdator, _initialLocalState);
 
+  //-----------------------------------------------
+  // useEffects for the username field validation
+  //-----------------------------------------------
   // upon changing of username field, signal running of validation code after a bit of delay | runs when HomeGuest is first mounted and when username field changes
   useEffect(() => {
     // basically to do nothing the first time this useEffect runs
@@ -128,6 +165,65 @@ function HomeGuest() {
     // return cleanup function
     return () => axiosReqRef.cancel();
   }, [localState.username.checkCount]);
+  //----------------------------------------------
+
+  //-----------------------------------------------
+  // useEffects for the email field validation
+  //-----------------------------------------------
+  // upon changing of email field, signal running of validation code after a bit of delay | runs when HomeGuest is first mounted and when username field changes
+  useEffect(() => {
+    // basically to do nothing the first time this useEffect runs
+    const emailDoesntExist = !localState.email.value;
+    if (emailDoesntExist) return;
+
+    const delayTimeoutRef = setTimeout(() => localStateUpdator({ type: 'emailAfterDelay' }), 800);
+
+    // getting rid of previously created timeout when the email changes again | useEffect's cleanup function which runs the next time this useEffect runs OR when this HomeGuest compo is unmounted.
+    return () => clearTimeout(delayTimeoutRef);
+  }, [localState.email.value]);
+
+  // upon changing of email field (after a bit of delay), make network request to check if the email already exists | runs when HomeGuest is first mounted and when localState.email.checkCount changes.
+  useEffect(() => {
+    // Do nothing if this is the first time the useEffect has been run.
+    const makeNoReqToCheckEmailUniqueness = localState.email.checkCount === 0;
+    if (makeNoReqToCheckEmailUniqueness) return;
+
+    const axiosReqRef = axios.CancelToken.source();
+    // Make network request:
+    (async function () {
+      try {
+        const url = '/doesEmailExist';
+        const dataToSend = { email: localState.email.value };
+        const cancelToken = { cancelToken: axiosReqRef.token };
+        const serverResponse = await axios.post(url, dataToSend, cancelToken); //server is going to respond with a boolean data prop
+
+        localStateUpdator({ type: 'emailUniqueResults', value: serverResponse.data });
+      } catch (err) {
+        console.log(err);
+      }
+    })();
+
+    // return cleanup function
+    return () => axiosReqRef.cancel();
+  }, [localState.email.checkCount]);
+  //----------------------------------------------
+
+  //-----------------------------------------------
+  // useEffects for the password field validation
+  //-----------------------------------------------
+  // upon changing of password field, signal running of validation code after a bit of delay | runs when HomeGuest is first mounted and when username field changes
+  useEffect(() => {
+    // basically to do nothing the first time this useEffect runs
+    const passwordDoesntExist = !localState.password.value;
+    if (passwordDoesntExist) return;
+
+    const delayTimeoutRef = setTimeout(() => localStateUpdator({ type: 'passwordAfterDelay' }), 800);
+
+    // getting rid of previously created timeout when the password changes again | useEffect's cleanup function which runs the next time this useEffect runs OR when this HomeGuest compo is unmounted.
+    return () => clearTimeout(delayTimeoutRef);
+  }, [localState.password.value]);
+  //----------------------------------------------
+
   const handleSubmit = function (e) {
     e.preventDefault();
   };
@@ -155,12 +251,18 @@ function HomeGuest() {
               <small>Email</small>
             </label>
             <input onChange={e => localStateUpdator({ type: 'emailImmediately', value: e.target.value })} value={localState.email.value} id="email-register" name="email" className="form-control" type="text" placeholder="you@example.com" autoComplete="off" />
+            <CSSTransition in={localState.email.hasErrors} timeout={330} classNames="liveValidateMessage" unmountOnExit>
+              <div className="alert alert-danger small liveValidateMessage">{localState.email.message}</div>
+            </CSSTransition>
           </div>
           <div className="form-group">
             <label htmlFor="password-register" className="text-muted mb-1">
               <small>Password</small>
             </label>
             <input onChange={e => localStateUpdator({ type: 'passwordImmediately', value: e.target.value })} value={localState.password.value} id="password-register" name="password" className="form-control" type="password" placeholder="Create a password" />
+            <CSSTransition in={localState.password.hasErrors} timeout={330} classNames="liveValidateMessage" unmountOnExit>
+              <div className="alert alert-danger small liveValidateMessage">{localState.password.message}</div>
+            </CSSTransition>
           </div>
           <button type="submit" className="py-3 mt-4 btn btn-lg btn-success btn-block">
             Sign up for ComplexApp
