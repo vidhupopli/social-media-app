@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useEffect } from 'react';
 import { useImmerReducer } from 'use-immer';
 import { CSSTransition } from 'react-transition-group';
 
@@ -6,21 +6,21 @@ function HomeGuest() {
   const _initialLocalState = {
     username: {
       value: '',
-      hasErrors: '',
+      hasErrors: false,
       message: '',
       isUnique: false,
       checkCount: 0
     },
     email: {
       value: '',
-      hasErrors: '',
+      hasErrors: false,
       message: '',
       isUnique: false,
       checkCount: 0
     },
     password: {
       value: '',
-      hasErrors: '',
+      hasErrors: false,
       message: ''
     },
     submitCount: 0
@@ -47,7 +47,13 @@ function HomeGuest() {
           curLocalState.username.message = 'username can only contain letters and nums';
         }
         break;
+      // code to run after a while username field changes
       case 'usernameAfterDelay':
+        const usernameLessThan3Chars = curLocalState.username.value.length < 3;
+        if (usernameLessThan3Chars) {
+          curLocalState.username.hasErrors = true;
+          curLocalState.username.message = 'username must have more than 3 chars';
+        }
         break;
       case 'usernameUniqueResults':
         break;
@@ -72,6 +78,17 @@ function HomeGuest() {
     }
   };
   const [localState, localStateUpdator] = useImmerReducer(_localStateUpdator, _initialLocalState);
+
+  // upon changing of username field, signal running of validation code after a bit of delay | runs when HomeGuest is first mounted and when username field changes
+  useEffect(() => {
+    // basically to do nothing the first time this useEffect runs
+    if (!localState.username.value) return;
+
+    const delayTimeoutRef = setTimeout(() => localStateUpdator({ type: 'usernameAfterDelay' }), 800);
+
+    // getting rid of previously created timeout when the username changes again | useEffect's cleanup function which runs the next time this useEffect runs OR when this HomeGuest compo is unmounted.
+    return () => clearTimeout(delayTimeoutRef);
+  }, [localState.username.value]);
 
   const handleSubmit = function (e) {
     e.preventDefault();
