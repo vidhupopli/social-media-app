@@ -99,6 +99,38 @@ function Main() {
   }, [globalState.userCredentials]);
   /////////////////////
 
+  //-----------------------------------------------
+  // Check validity of token | runs when the component is mounted
+  //-----------------------------------------------
+  useEffect(() => {
+    // makes sure the useEffect doesn't try to validate the token if the token doesn't exist at all.
+    const noTokenExists = !globalState.userCredentials;
+    if (noTokenExists) return;
+
+    const axiosReqRef = axios.CancelToken.source();
+    // Make network request:
+    (async function () {
+      try {
+        const url = '/checkToken';
+        const dataToSend = { token: globalState.userCredentials.token };
+        const cancelToken = { cancelToken: axiosReqRef.token };
+        const serverResponse = await axios.post(url, dataToSend, cancelToken); //server responds with data that is boolean value
+
+        const tokenIsNotValid = !serverResponse.data;
+        if (tokenIsNotValid) {
+          globalStateUpdator({ type: 'logout' });
+          globalStateUpdator({ type: 'addFlashMessage', newMessage: 'your session has expired' });
+        }
+      } catch (err) {
+        console.log(err);
+      }
+    })();
+
+    // return cleanup function
+    return () => axiosReqRef.cancel();
+  }, [globalState.userCredentials]);
+  //-----------------------------------------------
+
   return (
     <StateContext.Provider value={globalState}>
       <StateUpdatorContext.Provider value={globalStateUpdator}>

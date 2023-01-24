@@ -38,7 +38,7 @@ function ProfilePosts() {
   return (
     <div className="list-group">
       {posts.map(postData => (
-        <Post post={postData} noAuthor={true} />
+        <Post key={postData._id} post={postData} noAuthor={true} />
       ))}
     </div>
   );

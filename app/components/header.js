@@ -2,14 +2,14 @@ import React, { useContext } from 'react';
 import { Link } from 'react-router-dom';
 
 // my contexts
-import StateContext from '../contexts/state-context';
+import GlobalStateContext from '../contexts/state-context';
 
 // my components
 import HeaderLoggedOut from './header-logged-out';
 import HeaderLoggedIn from './header-logged-in';
 
 function Header() {
-  const retrievedStateRef = useContext(StateContext);
+  const globalState = useContext(GlobalStateContext);
 
   return (
     <header className="header-bar bg-primary mb-3">
@@ -19,7 +19,7 @@ function Header() {
             SocialApp
           </Link>
         </h4>
-        {retrievedStateRef.userCredentials ? <HeaderLoggedIn /> : <HeaderLoggedOut />}
+        {globalState.userCredentials ? <HeaderLoggedIn /> : <HeaderLoggedOut />}
       </div>
     </header>
   );
