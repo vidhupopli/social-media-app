@@ -1,5 +1,4 @@
 import React, { useEffect } from 'react';
-import ReactDOM from 'react-dom/client';
 import { useImmerReducer } from 'use-immer';
 import { BrowserRouter, Routes, Route } from 'react-router-dom';
 import { CSSTransition } from 'react-transition-group';
@@ -8,7 +7,7 @@ import './../node_modules/react-tooltip/dist/react-tooltip.css';
 
 // setting up baseUrl to be used with axios
 import axios from 'axios';
-axios.defaults.baseURL = 'http://localhost:8080/';
+axios.defaults.baseURL = 'https://react-socialapp-backend-1.onrender.com/';
 
 // my contexts
 import StateContext from './contexts/state-context';
@@ -29,7 +28,7 @@ import PageNotFound from './components/page-not-found';
 import Search from './components/search';
 import Chat from './components/Chat';
 
-function Main() {
+function App() {
   const initalStateVal = {
     userCredentials: null,
     flashMessages: [],
@@ -37,7 +36,6 @@ function Main() {
     isChatOpen: false,
     unreadChatCount: 0
   };
-
   const customUpdateStateFn = function (currMutableStateVal, phActionObj) {
     switch (phActionObj.type) {
       case 'logout':
@@ -72,12 +70,12 @@ function Main() {
         throw new Error('Invalid action type');
     }
   };
-
   const [globalState, globalStateUpdator] = useImmerReducer(customUpdateStateFn, initalStateVal);
 
   /////////////////////
   //loading and persisting state data
   /////////////////////
+
   // when main component is mounted:
   useEffect(() => {
     const obtainedStringifiedData = localStorage.getItem('persistedUserData');
@@ -159,10 +157,4 @@ function Main() {
   );
 }
 
-const root = ReactDOM.createRoot(document.getElementById('root'));
-
-root.render(<Main />);
-
-if (module.hot) {
-  module.hot.accept();
-}
+export default App;

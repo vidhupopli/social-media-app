@@ -5,7 +5,7 @@ import { useImmer } from 'use-immer'; //like useState
 // We install this package and import this function.
 import { io } from 'socket.io-client';
 // establish ongoing connection between browser and server
-const socket = io('http://localhost:8080');
+const socket = io('https://react-socialapp-backend-1.onrender.com/');
 
 import GlobalStateContext from '../contexts/state-context';
 import GlobalStateUpdatorContext from '../contexts/state-updator-context';
@@ -43,8 +43,8 @@ function Chat() {
   useEffect(() => {
     // in the bg, we will have a listner listerning for this particular type of data that the server may sent to us. if it is sent we store it in localstate.
     // (typeOfEventServerBroadcastedToUsThatWeAReInterestedIn, functionThatRunsWhenServerSendsUsThisTypeOfData)
-    socket.on('chatFromServer', message => {
-      setLocalState(curVal => {
+    socket.on('chatFromServer', (message) => {
+      setLocalState((curVal) => {
         curVal.chatMessages.push(message);
       });
     });
@@ -64,7 +64,7 @@ function Chat() {
   const handleFieldChange = function (e) {
     const latestFieldVal = e.target.value;
 
-    setLocalState(curVal => {
+    setLocalState((curVal) => {
       curVal.fieldValue = latestFieldVal;
     });
   };
@@ -78,7 +78,7 @@ function Chat() {
     socket.emit('chatFromBrowser', { message: localState.fieldValue, token: globalState.userCredentials.token });
 
     // add the message to localState.chatMessage and clear out the input field value state
-    setLocalState(curVal => {
+    setLocalState((curVal) => {
       curVal.chatMessages.push({ message: curVal.fieldValue, username: globalState.userCredentials.username, avatar: globalState.userCredentials.avatar });
 
       // clear out the field value after the message has been added
@@ -90,7 +90,7 @@ function Chat() {
     <div id="chat-wrapper" className={'chat-wrapper shadow border-top border-left border-right ' + (globalState.isChatOpen ? 'chat-wrapper--is-visible' : '')}>
       <div className="chat-title-bar bg-primary">
         Chat
-        <span onClick={e => globalStateUpdator({ type: 'closeChat' })} className="chat-title-bar-close">
+        <span onClick={(e) => globalStateUpdator({ type: 'closeChat' })} className="chat-title-bar-close">
           <i className="fas fa-times-circle"></i>
         </span>
       </div>

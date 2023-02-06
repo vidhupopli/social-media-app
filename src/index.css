@@ -2,6 +2,10 @@ body {
   font-family: 'Public Sans', sans-serif;
 }
 
+.root {
+  min-height: 100vh !important;
+}
+
 .header-bar {
   background-color: #292929;
 }
